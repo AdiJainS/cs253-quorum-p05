@@ -56,7 +56,7 @@ This builds and runs every unit test, invariant checker and differential test, t
 What the differential tests run:
 
 - Structure B against the array oracle: 1,000,000 operations (`tests/test_scale_d2.cpp`, seed 42).
-- Structure A against the array oracle: 100,000 operations (`tests/test_real_d1.cpp`, seed 42).
+- Structure A against the array oracle: 1,000,000 operations (`tests/structA/test_differential.cpp`, seed 20261116) and 100,000 operations (`tests/test_real_d1.cpp`, seed 42).
 - The application, for each backend: 1,000,000 operations (`bin/app --backend=a --test` and `--backend=b-hybrid --test`, seed 253).
 
 ## Evaluation interface (pending instructor specification)
@@ -133,7 +133,6 @@ The prefix-only baseline (n = 4096, 10,000 operations, 50% updates) took 0.23, 1
 ## Known limitations
 
 - The official evaluation format is not published; `app/run_ops.cpp` and `./bin/run_ops --structure A|B` remain pending. `bin/app` has `--backend=a` and `--backend=b-hybrid` but the hybrid is not a pure-B aggregate implementation, since B has no count or gcd.
-- The Structure A differential test runs 100,000 operations, not 10^6.
 - The timing data was recorded on a Windows machine without background-load control. Some configurations have large spread. The cache profiling uses Windows tracing tools and is sampled, not exact miss counts.
 - Structure B's build scans its blocks and has an O(n log n) upper bound, whereas the paper describes a linear build.
 - Some figures in `results/figures/` come from earlier runs that used different counter settings; REPORT.md names which run each belongs to.
