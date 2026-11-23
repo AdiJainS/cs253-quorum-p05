@@ -2,7 +2,7 @@
 #include <random>
 #include <vector>
 
-#include "structure_a.hpp"
+#include "../../src/structA/structure_a.hpp"
 #include "../../oracle/oracle.hpp"
 #include "../../oracle/generator.hpp"
 
