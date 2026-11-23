@@ -1,0 +1,49 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><title>D2: Structure B</title>
+<style>
+@page { size: A4; margin: 13mm 15mm; }
+body { font-family: "Times New Roman", serif; font-size: 9.7pt; line-height: 1.26; color: #000; }
+h1 { font-size: 14pt; margin: 0 0 2px 0; }
+h2 { font-size: 10.8pt; margin: 8px 0 2px 0; }
+p { margin: 3px 0; text-align: justify; }
+.meta { font-size: 9pt; margin-bottom: 4px; }
+code { font-family: Menlo, monospace; font-size: 8.6pt; }
+ul, ol { margin: 2px 0 2px 16px; padding: 0; }
+li { margin: 1px 0; }
+</style></head><body>
+
+<h1>D2: The Dima–Ceterchi range-maximum query and its updates</h1>
+<div class="meta">CS 253 / MA 253, Project 5. Author: Vishruth Agrawal, Roll No. 250001078, Structure B owner. Sources consulted: Dima and Ceterchi (2015), Fenwick (1994).</div>
+
+<h2>Statement</h2>
+<p>The Dima–Ceterchi range-maximum query is correct and runs in O(log n), and point updates, including decreases, are correct. We prove: (1) <code>queryMax(l, r)</code> returns the maximum of <code>a[l..r]</code>; (2) it reads at most 2⌊log₂ w⌋+1 blocks for width w = r−l+1; (3) after <code>assign(p, v)</code> every stored block value is again the true block maximum, whether v is larger, smaller or equal; (4) <code>assign</code> takes at most 4(⌊log₂ n⌋+1) steps. The paper uses minimum; we reverse every comparison, and "nothing" is −∞.</p>
+
+<h2>Definitions</h2>
+<p>Positions are 1..n. <code>lowbit(i) = i &amp; −i</code>. Two blocks belong to each i: B1(i) = [i−lowbit(i)+1, i] (ends at i) and B2(i) = [i, min(n, i+lowbit(i)−1)] (starts at i). The structure stores bit1[i] = max a over B1(i) and bit2[i] = max a over B2(i). <b>Invariant I:</b> every stored value equals the true maximum of its block. Build makes I true by computing each block maximum from the definition.</p>
+
+<h2>Three facts about lowbit</h2>
+<p><b>Fact 1.</b> If lowbit(i) = 2<sup>k</sup>, write i = c·2<sup>k+1</sup> + 2<sup>k</sup>. Then i+2<sup>k</sup> = (c+1)·2<sup>k+1</sup> and i−2<sup>k</sup> = c·2<sup>k+1</sup>, so both have lowbit at least 2<sup>k+1</sup>. Hence along a chain of repeated +lowbit (or −lowbit) steps, the lowbit at step j is at least 2<sup>j</sup>.</p>
+<p><b>Fact 2.</b> Every interval [l, r] with l ≥ 1 has exactly one element k with the largest lowbit (its <i>top</i>). If u &lt; v both had the largest lowbit 2<sup>m</sup>, both are odd multiples of 2<sup>m</sup>, so u+2<sup>m</sup> is a multiple of 2<sup>m+1</sup> lying in (u, v), with a larger lowbit, a contradiction.</p>
+<p><b>Fact 3.</b> Let k be the top of [l, r]. (a) If l ≤ x &lt; k then x+lowbit(x) ≤ k. (b) If k &lt; y ≤ r then y−lowbit(y) ≥ k. Reason for (a): lowbit(x) = 2<sup>j</sup> is smaller than lowbit(k), so x is an odd multiple of 2<sup>j</sup>, the next multiple of 2<sup>j+1</sup> after x is x+2<sup>j</sup>, and k is a multiple of 2<sup>j+1</sup> above x. (b) is symmetric. So repeatedly adding lowbit from l lands exactly on k, and repeatedly subtracting lowbit from r lands exactly on k.</p>
+
+<h2>1. The query is correct</h2>
+<p><i>Algorithm.</i> Left walk: x = l; while x+lowbit(x) ≤ r take bit2[x] and set x = x+lowbit(x). Right walk: y = r; while y−lowbit(y) ≥ l take bit1[y] and set y = y−lowbit(y). Finally take a[x]. The answer is the maximum of everything taken.</p>
+<p><b>Claim A: both walks stop at k, the top of [l, r].</b> For x &lt; k in the left walk, Fact 3(a) gives x+lowbit(x) ≤ k ≤ r, so the walk continues and cannot jump over k. At x = k it stops: if k+lowbit(k) ≤ r, that number lies in [l, r] and has a larger lowbit by Fact 1, contradicting Fact 2. The right walk is the same using Fact 3(b), and at y = k it stops since k−lowbit(k) ≥ l would again give a larger lowbit inside [l, r].</p>
+<p><b>Claim B: the blocks cover [l, r] exactly once.</b> A left step at x takes B2(x) = [x, x+lowbit(x)−1], and the next position is x+lowbit(x); the block is not cut by n because x+lowbit(x) ≤ r ≤ n. So consecutive left blocks join with no gap or overlap and cover [l, k−1]. A right step at y takes B1(y) = [y−lowbit(y)+1, y], and the right blocks cover [k+1, r]. The last value covers {k}. The three parts partition [l, r], and by Invariant I each stored value is the true maximum of its part, so the result is max a[l..r]. If l = r neither walk moves and a[l] is returned.</p>
+
+<h2>2. The query is O(log n)</h2>
+<p>By Fact 1, after s left steps we have moved at least 1+2+…+2<sup>s−1</sup> = 2<sup>s</sup>−1 positions, but never more than w−1. So 2<sup>s</sup>−1 ≤ w−1 and s ≤ ⌊log₂ w⌋. The right walk is the same, so at most 2⌊log₂ w⌋+1 blocks are read, each in constant time: O(log w) ⊆ O(log n).</p>
+
+<h2>3. The update is correct, decreases included</h2>
+<p>A block that does not contain p keeps its true maximum, so only blocks containing p need repair.</p>
+<p><b>Lemma 1 (which blocks contain p).</b> B1(x) contains p exactly when x is on the chain p, p+lowbit(p), … (x ≤ n); B2(y) contains p exactly when y is on the chain p, p−lowbit(p), … (y ≥ 1). <i>Proof for B1, "only if":</i> p ∈ B1(x) means x−lowbit(x) &lt; p ≤ x, so every element of [p, x] other than x has a smaller lowbit than x; x is the top of [p, x], and Fact 3 says the chain from p lands on x. <i>"If":</i> going from x<sub>t</sub> to x<sub>t+1</sub> = x<sub>t</sub>+lowbit(x<sub>t</sub>), the start of the block moves left or stays (Fact 1) and the end moves right, so each block contains the previous one, and B1(p) contains p. B2 is symmetric.</p>
+<p><b>New value of such a block.</b> Split it into the part left of p, the element p, and the part right of p. Its new maximum is max(v, max of left part, max of right part). The two parts do not contain p, so their stored information is still valid. <b>The old a[p] and the old block maximum are never used,</b> so a decrease is no harder than an increase. The increase-only rule stored = max(stored, v) fails: for a = [3,2,5,1,4,6,2,7] and a[6] := 1, block B1(6) = [5, 6] keeps the old 6, but the true maximum is max(4, 1) = 4.</p>
+<p><b>Getting the left and right parts.</b> Before any write, <code>assign</code> climbs right from p+1 (q ← q+lowbit(q), recording the running maximum of bit2[q] before each step) and left from p−1 (u ← u−lowbit(u), same with bit1[u]). Those blocks lie wholly on one side of p and join one after another, so the recorded value at q is max a[p+1..q−1] and at u is max a[u+1..p−1]. Every position whose recorded value is needed (x &gt; p on the first chain, z = y+lowbit(y) for y on the second chain, and w = x−lowbit(x), y &lt; p on the left) is the top of the relevant interval by Fact 2 and Fact 1, so by Fact 3 the climb lands on it. Then every B1(x) on the first chain and every B2(y) on the second chain is rewritten as max(v, left part, right part). By Lemma 1 these are exactly the blocks containing p, so Invariant I holds again for increases, decreases and equal values.</p>
+
+<h2>4. The update is O(log n)</h2>
+<p><code>assign</code> runs four loops (right climb, left climb, bit1 loop, bit2 loop). In each, the index moves by lowbit and by Fact 1 the lowbit at step j is at least 2<sup>j</sup>, while the index stays in [1, n]; so each loop runs at most ⌊log₂ n⌋+1 times. Total at most 4(⌊log₂ n⌋+1) constant-time steps: O(log n) in the worst case, with no amortisation needed.</p>
+
+<h2>Where this is used</h2>
+<p><code>src/structB/fenwick_max.hpp</code>: <code>FenwickMax::queryMax</code> and its helper <code>queryPos</code> implement Section 1; <code>FenwickMax::assign</code> implements Section 3 (<code>assignSlow</code> is the cross-check). The step limits in Sections 2 and 4 are checked in <code>tests/structB/test_counters.cpp</code> (the largest query read 31 blocks and the largest assign took 40 steps for n = 10<sup>6</sup>, against limits 39 and 80), and Invariant I is checked in <code>tests/structB/test_blocks.cpp</code>. The measurements in REPORT.md count the same blocks and steps. The longer version of this derivation is <code>docs/derivations/extra/D2_extended.pdf</code>.</p>
+
+</body></html>

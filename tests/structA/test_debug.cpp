@@ -29,6 +29,15 @@ int main() {
     unbuilt.build({});
     require(unbuilt.debugCheckAgainst({}), "Built empty tree must pass validation");
 
+    structA::GcdSegmentTree emptyGcd;
+    require(emptyGcd.debugCheckAgainst({}), "Default GCD wrapper must validate safely");
+    structA::GcdSegmentTree gcd(std::vector<structA::GcdValue>{12, 18, 30, 42});
+    gcd.resetCounters();
+    gcd.query(0, 3);
+    const auto gcdBefore = gcd.euclidRemainderSteps();
+    require(gcd.debugCheckAgainst({12, 18, 30, 42}), "GCD wrapper rejected valid tree");
+    require(gcd.euclidRemainderSteps() == gcdBefore, "GCD wrapper validation changed counters");
+
     std::vector<long long> values = {12, 18, 30};
     structA::StructureA tree(values);
     tree.queryGCD(0, 3);

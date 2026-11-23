@@ -1,143 +1,268 @@
-# Results
+# Aggregates a Fenwick Tree Cannot Support
 
-## 20 November counters-off timing runs
+**CS253 / MA253 – Project 5 – Report**
 
-These local reruns use D1 `01da510` and D2 `e925e6f`, with a D6 switch that disables B's counters at compile time. A's counters are also disabled. The data-structure algorithms are unchanged. Counter collection uses a separate build. These revisions are the current remote D1/D2 branch tips checked on 20 November; the team still needs to select the release commit.
+21 November 2026
 
-Each maximum workload has 1,000,000 values and 1,000,000 operations, seed 253, and five repetitions. Values below are mean replay milliseconds � sample standard deviation. Construction is measured separately. The dated folder preserves the new data alongside all earlier runs.
+## Abstract
 
-| Width | Updates | Segment tree A (ms) | Two-tree Fenwick B (ms) |
+We study point assignments and range aggregates for a sensor array. A segment tree maintains maximum, its frequency and greatest common divisor (GCD); a two-tree Fenwick structure supports arbitrary range maxima. We describe their invariants, an array oracle, adversarial inputs and measurements. The recorded experiments demonstrate that performance depends on the operation mix and range width. Integration and cache-measurement limitations are stated explicitly.
+
+## 1. Team and contributions
+
+| Role | Teammate | Roll number | GitHub | Derivation |
+| --- | --- | --- | --- | --- |
+| Structure A owner | Tia Mehra | 250041039 | @Tia-917 | D1 |
+| Structure B owner | Vishruth Agrawal | 250001078 | @Vishruth-create | D2 |
+| Architect | Anushri Maheshwari | 250041005 | @Apples-17 | D3 |
+| Oracle owner | Sushmita Patil | 250001069 | @psush29 | D4 |
+| Adversary | Vanshika Agrawal | 250001076 | @vanshi040907 | D5 |
+| Analyst | Adi Jain | 250001083 | @AdiJainS | D6 |
+
+What each member built, with links to main commits (pull requests are listed in the repository's Pull requests tab):
+
+- **Tia Mehra (Structure A):** generic iterative segment tree core ([451757b](https://github.com/AdiJainS/Aggregates-A-Fenwick-Tree-Cannot-Support/commit/451757b)), maximum/count and gcd wrapper ([0ebb69f](https://github.com/AdiJainS/Aggregates-A-Fenwick-Tree-Cannot-Support/commit/0ebb69f)), query, update, invariant and differential tests ([b72444b](https://github.com/AdiJainS/Aggregates-A-Fenwick-Tree-Cannot-Support/commit/b72444b)), operation counters ([10d8e8e](https://github.com/AdiJainS/Aggregates-A-Fenwick-Tree-Cannot-Support/commit/10d8e8e)), pull request 5.
+- **Vishruth Agrawal (Structure B):** Fenwick maximum build and query ([ec8e003](https://github.com/AdiJainS/Aggregates-A-Fenwick-Tree-Cannot-Support/commit/ec8e003)), assign with decreases ([4bd8733](https://github.com/AdiJainS/Aggregates-A-Fenwick-Tree-Cannot-Support/commit/4bd8733)), prefix-only baseline ([09e2867](https://github.com/AdiJainS/Aggregates-A-Fenwick-Tree-Cannot-Support/commit/09e2867)), O(log n) assign with the slow version kept as a cross-check ([9b3aa9d](https://github.com/AdiJainS/Aggregates-A-Fenwick-Tree-Cannot-Support/commit/9b3aa9d)), counters and their tests ([c06eb48](https://github.com/AdiJainS/Aggregates-A-Fenwick-Tree-Cannot-Support/commit/c06eb48), [e925e6f](https://github.com/AdiJainS/Aggregates-A-Fenwick-Tree-Cannot-Support/commit/e925e6f)), D2 derivation, pull request 3.
+- **Anushri Maheshwari (Architect):** sensor replay application and gcd segment tree ([380085c](https://github.com/AdiJainS/Aggregates-A-Fenwick-Tree-Cannot-Support/commit/380085c), [06784fb](https://github.com/AdiJainS/Aggregates-A-Fenwick-Tree-Cannot-Support/commit/06784fb)), seeded tests and invariant checks ([8bce4a7](https://github.com/AdiJainS/Aggregates-A-Fenwick-Tree-Cannot-Support/commit/8bce4a7)), interface document and D3 proof ([1412acf](https://github.com/AdiJainS/Aggregates-A-Fenwick-Tree-Cannot-Support/commit/1412acf)), pull requests 4 and 8.
+- **Sushmita Patil (Oracle):** array oracle ([3e9e658](https://github.com/AdiJainS/Aggregates-A-Fenwick-Tree-Cannot-Support/commit/3e9e658)), seeded operation generator ([466834b](https://github.com/AdiJainS/Aggregates-A-Fenwick-Tree-Cannot-Support/commit/466834b)), gcd reference and differential testing ([e85a02a](https://github.com/AdiJainS/Aggregates-A-Fenwick-Tree-Cannot-Support/commit/e85a02a), [2133306](https://github.com/AdiJainS/Aggregates-A-Fenwick-Tree-Cannot-Support/commit/2133306)), million-operation D2 test ([95db6b8](https://github.com/AdiJainS/Aggregates-A-Fenwick-Tree-Cannot-Support/commit/95db6b8)), failure shrinking ([f7ded3e](https://github.com/AdiJainS/Aggregates-A-Fenwick-Tree-Cannot-Support/commit/f7ded3e)), D4 proof, pull request 6.
+- **Vanshika Agrawal (Adversary):** repeated-rebuild workload ([6f551e8](https://github.com/AdiJainS/Aggregates-A-Fenwick-Tree-Cannot-Support/commit/6f551e8)), difficult queries ([6005783](https://github.com/AdiJainS/Aggregates-A-Fenwick-Tree-Cannot-Support/commit/6005783)), repeated decreases ([4b820b9](https://github.com/AdiJainS/Aggregates-A-Fenwick-Tree-Cannot-Support/commit/4b820b9)), scale verification ([ff61b0b](https://github.com/AdiJainS/Aggregates-A-Fenwick-Tree-Cannot-Support/commit/ff61b0b)), D5 proof, pull request 2.
+- **Adi Jain (Analyst):** cost model draft ([f1ec232](https://github.com/AdiJainS/Aggregates-A-Fenwick-Tree-Cannot-Support/commit/f1ec232)), gcd and maximum benchmarks ([ec9b31f](https://github.com/AdiJainS/Aggregates-A-Fenwick-Tree-Cannot-Support/commit/ec9b31f), [60da2c5](https://github.com/AdiJainS/Aggregates-A-Fenwick-Tree-Cannot-Support/commit/60da2c5)), D5 scale benchmarks ([9819241](https://github.com/AdiJainS/Aggregates-A-Fenwick-Tree-Cannot-Support/commit/9819241)), decrease study ([9f259e7](https://github.com/AdiJainS/Aggregates-A-Fenwick-Tree-Cannot-Support/commit/9f259e7)), counters-off reruns ([a9cc82f](https://github.com/AdiJainS/Aggregates-A-Fenwick-Tree-Cannot-Support/commit/a9cc82f)), pull requests 1 and 7.
+
+
+## 2. Problem
+
+The application stores sensor readings and calibration values and processes point assignments and range queries. The architect’s interface uses zero-based half-open ranges $[l,r)$, with $0 \le l \le r \le n$. A query returns the maximum reading, its count, and the GCD of calibration values. Empty queries return $(-1,0,0)$ under the application’s nonnegative input contract. The application accepts separate reading and calibration fields. The application now uses the native structures through the shared adapters in `include/`. Structure B promises a maximum only, so a hybrid implementation must identify how it supplies count and GCD.
+
+Scale: one million values and one million operations (n up to 1,048,576 for the D5 workloads), as required by the project document.
+
+## 3. Interface and invariants
+
+The full text is in [INTERFACE.md](INTERFACE.md). Part 1 lists the structure interface (build, assign, maximum query, gcd query) and the half-open versus inclusive range conventions. Structure A uses half-open ranges `[l, r)`; Structure B and the maximum oracle use inclusive ranges `[l, r]`, and the benchmark harness converts between them. Part 2 is the application contract for the sensor replay.
+
+Invariants checked by tests:
+
+1. Every query equals the plain-array answer after any sequence of assignments (`oracle/`, `tests/differential_test.cpp`).
+2. Structure A: every parent equals the merge of its children; padding leaves are identities (`tests/structA/test_invariants.cpp`).
+3. Structure B: every stored block equals the true maximum of its block, including after a decrease; the fast assignment leaves the same blocks as a fresh build (`tests/structB/test_blocks.cpp`).
+4. Structure B: a query visits at most 2·⌊log₂ n⌋+1 blocks and an assignment takes at most 4(⌊log₂ n⌋+1) steps (`tests/structB/test_counters.cpp`).
+5. The prefix baseline is correct after a decrease only because it rebuilds.
+
+## 4. Structure A
+
+Each leaf holds a value. Internal nodes merge their children: maximum/count selects the larger maximum and adds counts on ties, while GCD uses Euclid’s algorithm with identity zero. Padding leaves use identities. The implementation stores separate maximum/count and GCD trees. A point assignment replaces a leaf and recomputes its ancestors; a query combines disjoint blocks covering the requested range. By induction each node contains the correct aggregate. Build and storage are $O(n)$ for maximum/count; maximum query and update are $O(\log n)$.
+
+For D1, the pair for a sequence is its maximum and the number of occurrences of that maximum. Merging two pairs produces exactly the pair for their concatenation. Concatenation is associative, so the merge is associative; $(-\infty,0)$ is its identity. The segment-tree argument needs associativity and an identity, not an inverse. Two accumulators preserve left-to-right order for generic associative operations.
+
+More explicitly, for summaries $(m_1,c_1)$ and $(m_2,c_2)$, let $M=\max(m_1,m_2)$. Their merge is $(M,[m_1=M]c_1+[m_2=M]c_2)$. For any three summaries, either grouping produces the overall maximum and adds exactly the counts belonging to it. Thus the operation is associative and the empty summary is an identity. A range query repeatedly takes complete nodes from its left or right boundary; the selected nodes and the unprocessed middle partition the original interval. When the middle is empty, the ordered accumulators cover every requested element once. This proof works for any monoid, including a noncommutative one, because the implementation preserves order.
+
+![Figure 1. Segment tree example](docs/report-images/figure-01.png)
+
+*Figure 1: Segment tree for readings [5, 2, 7, 4]. Each parent combines its children.*
+
+## 5. Structure B
+
+The implementation stores maxima for blocks in two directional Fenwick arrays. An arbitrary range is covered from both boundaries using stored blocks and remaining elements. Reversing comparisons turns the range-minimum method of Dima and Ceterchi into a maximum method. The project implementation scans blocks during construction, with an $O(n \log n)$ upper bound; query work is $O(\log(w+1))$ for range width $w$. The D2 derivation bounds this implementation’s assignment steps by $4(\lfloor\log_2 n\rfloor+1)$, giving $O(\log n)$ worst-case steps. Counters distinguish query blocks, assignment steps and changed blocks; these measure different events.
+
+For one-based internal index $i$, write lowbit$(i)$ for its lowest set bit. The first tree stores the maximum on $[i-\text{lowbit}(i)+1,i]$; the second stores the maximum on $[i,\min(n,i+\text{lowbit}(i)-1)]$. The invariant says each stored value is the true maximum of its block. The query walks from both endpoints toward the unique position with the largest lowbit in the range. The blocks visited from the left cover the positions before that point; those from the right cover the positions after it; the remaining position is read directly. Thus their union is the requested range without gaps. Each successive lowbit at least doubles, so each walk has at most $\lfloor\log_2 w\rfloor$ steps.
+
+For an assignment, unaffected blocks retain their maxima. The update recomputes affected blocks using partial maxima from their unchanged parts and the new value, including when the old maximum is decreased. The D2 proof states the block invariant and gives the detailed walk-by-walk argument in <code>docs/derivations/sources/D2-structureB-draft.md</code>. The bound concerns its counted algorithmic steps; it is not a claim that every update takes the same elapsed time.
+
+![Figure 2. Structure B covers a requested range by traversing blocks from both ends.](docs/report-images/figure-02.png)
+
+*Figure 2: Structure B covers a requested range by traversing blocks from both ends.*
+
+![Figure 3. The same generated workload is replayed for A and B; manageable cases are checked against the oracle.](docs/report-images/figure-03.png)
+
+*Figure 3: The same generated workload is replayed for A and B; manageable cases are checked against the oracle.*
+
+### 5.1 Why a prefix maximum is insufficient
+
+Prefix maxima cannot be subtracted to recover an arbitrary range maximum. For example, $[10,2]$ and $[10,7]$ have identical prefix maxima but different maxima at the second position. The prefix-only baseline supports prefix queries; in this implementation each decrease rebuilds the tree. Increasing a value visits logarithmically many blocks, but decreasing an old maximum can hide the replacement. Rebuilding makes two linear passes.
+
+For D4, the failed step is the cancellation used in a sum query: from $P(r)=P(l-1)+S(l,r)$ we recover $S(l,r)$ by subtracting $P(l-1)$. Maximum has no corresponding inverse capable of recovering the missing range maximum. The counterexample above gives the same two prefix answers for two different range answers.
+
+## 6. The requirement beyond the lecture
+
+The reading-list part of this project is the Fenwick range-maximum structure of Dima and Ceterchi [2], implemented in `src/structB/fenwick_max.hpp` (class `FenwickMax`). It keeps two Fenwick-style arrays, one with blocks ending at each index and one with blocks starting at each index, and covers a requested range from both ends. We turned the range-minimum method into a maximum method by reversing the comparisons.
+
+Where our implementation differs from the paper:
+
+- Build: the implementation scans each block, giving an O(n log n) upper bound. The paper describes a linear build.
+- Updates: the paper's setting is mainly queries; our project requires point assignment including decreases. `assign` recomputes only the blocks that contain the changed index, using partial maxima of their unchanged parts, in O(log n) steps. The older `assignSlow` is kept as a cross-check (`tests/structB/test_blocks.cpp`).
+- Counters: the class counts query blocks, assignment steps, changed blocks and lowered blocks. These are an addition for the measurements.
+
+TODO (Vishruth, D2): add two or three sentences on exactly what the paper proves about queries, and check the build claim above against the paper before the final tag.
+
+## 7. Correctness
+
+The array oracle performs assignments directly and scans a query range to calculate maximum, count and GCD. Differential tests replay the same operations against the structures and compare results; the D4 work also includes a shrinker for failing sequences. A uses half-open ranges while the general oracle uses inclusive endpoints, so the harness adjusts endpoints at the boundary. Small random cases and adversarial workloads are checked against the oracle; large timing checksums detect disagreement but do not prove correctness.
+
+An oracle query scans $w$ values and an assignment changes one array entry. The oracle’s simplicity makes it useful for checking each output, including repeated equal maxima and decreases. The D4 tests use a recorded random seed so a failure can be reproduced, and preserve failing operations for investigation. The shrinker removes operations while maintaining a failure, yielding a shorter example; it is a debugging aid, not a proof that the remaining implementations are correct for all inputs. The D4 derivation also shows that $\max(10,3)=\max(10,9)=10$: even knowing the old prefix maximum and combined maximum cannot recover the hidden range maximum.
+
+The differential tests are run by `make test`:
+
+| Test | Operations | Seed | Result |
+| --- | ---: | ---: | --- |
+| Structure B against the oracle (`tests/test_scale_d2.cpp`) | 1,000,000 | 42 | PASS, 0 mismatches |
+| Structure A against the oracle (`tests/test_real_d1.cpp`) | 100,000 | 42 | PASS |
+| Application, both backends (`bin/app --backend=a --test`, `--backend=b-hybrid --test`) | 1,000,000 each | 253 | PASS |
+| Shrinker demonstration (`tests/test_shrink_real_d2.cpp`) | injected fault, 5 operations reduced to 2 | — | detected |
+
+### 7.1 Bug log
+
+| Date | Module | Symptom | Found by | Fixing commit |
+| --- | --- | --- | --- | --- |
+| 2026-11-16 | Structure B (injected fault) | Omitted `ASSIGN 4 6` left index 4 at 8, so query `[3,4]` returned 8 instead of 6; the shrinker reduced 5 operations to 2. This fault was injected into the harness on purpose and is not a bug in the production code. | D4 differential shrinker | [f7ded3e](https://github.com/AdiJainS/Aggregates-A-Fenwick-Tree-Cannot-Support/commit/f7ded3e) (demonstration only); also in `docs/BUG_LOG.md` |
+
+TODO (every owner): add to this table (and `docs/BUG_LOG.md`) real bugs only, from your own notes and the commit history. Examples to look for: the Structure B assign rewrite ([9b3aa9d](https://github.com/AdiJainS/Aggregates-A-Fenwick-Tree-Cannot-Support/commit/9b3aa9d)), the segment-tree debug-check fix ([37f797e](https://github.com/AdiJainS/Aggregates-A-Fenwick-Tree-Cannot-Support/commit/37f797e)), and any mismatch the oracle reported. Do not add entries that did not happen.
+
+## 8. Adversarial inputs
+
+For $n=2^h$, the D5 difficult-query generator selects a range that makes the two-tree implementation count $2h-1$ query blocks. Its repeated-decrease workload repeatedly lowers a unique maximum and forces stored maxima to change. For $h=20$, one million difficult queries produce 39 million query blocks. A workload of 500,000 decreases and 500,000 queries produces 21 million assignment steps, 11 million lowered blocks and 10.5 million query blocks. These are implementation-specific counts, not elapsed times. The generators and proof appear in <code>adversary/ANALYSIS.md</code>.
+
+For the prefix baseline, consider $[5,3]$. Its full-prefix maximum is 5. After assigning the first element to 1, the correct maximum is 3, but applying the increase-only rule $T[i] := \max(T[i],1)$ leaves the stale maximum 5. D5 constructs a sequence of strict decreases to the first element; the baseline implementation rebuilds on every assignment. This gives $\Theta(kn)$ rebuild work for $k$ decreases, in addition to initial construction. The two-tree difficult-query and update counts are different adversarial targets: lowering stored maxima and visiting blocks are tracked separately.
+
+## 9. Predicted cost model
+
+The model was written before measuring. Its first commit is [f1ec232 "Draft cost model"](https://github.com/AdiJainS/Aggregates-A-Fenwick-Tree-Cannot-Support/commit/f1ec232) (10 November 2026); the first measurement files (`results/`) were committed on 16 November 2026. The final model is in `docs/derivations/D6_250001083.pdf`, with its notes in `docs/derivations/sources/D6-analyst-draft.md`.
+
+For the prefix baseline, if $Q$ queries, $U_+$ nondecreasing updates and $U_-$ decreases are replayed, rebuilding on each decrease gives
+
+$$
+O(n+Q\log n+U_+\log n+nU_-).
+$$
+
+An array assignment is $O(1)$ while a scan takes $O(w)$ for range width $w$. A’s aligned full-range query may be cheaper than a medium range even though the worst-case bound is logarithmic.
+
+## 10. Experimental setup
+
+The 20 November measurements use an Intel Core i9-13900HX, Windows 11, Zig 0.13.0 / Clang 18.1.6 and C++17 with <code>-O2</code>. Both structures have counters disabled in timing builds; counters are collected separately. The random workload uses one million values, one million operations and seed 253. Construction is measured separately from replay. Each timing is the mean and sample standard deviation of five runs. The machine was interactive, with no recorded thermal or background-load isolation.
+
+This report describes repository main at commit <code>67f55ee</code>, fetched on 21 November 2026. Benchmark results retain the source revisions recorded with each measurement; they should not be attributed automatically to later versions.
+
+## 11. Results
+
+| Width | Updates | A (ms) | B (ms) |
 | ---: | ---: | ---: | ---: |
-| 1 | 10% | 53.41 � 0.66 | 68.88 � 0.81 |
-| 1024 | 10% | 215.51 � 6.58 | 143.16 � 4.87 |
-| 1000000 | 10% | 77.32 � 0.51 | 86.25 � 2.65 |
-| 1024 | 50% | 271.82 � 17.20 | 376.30 � 46.82 |
-| 1024 | 90% | 341.94 � 44.03 | 624.30 � 92.48 |
+| 1 | 10% | 53.41 ± 0.66 | 68.88 ± 0.81 |
+| 1 | 50% | 168.79 ± 4.01 | 303.32 ± 7.58 |
+| 1 | 90% | 315.79 ± 65.31 | 619.32 ± 116.14 |
+| 1,024 | 10% | 215.51 ± 6.58 | 143.16 ± 4.87 |
+| 1,024 | 50% | 271.82 ± 17.20 | 376.30 ± 46.82 |
+| 1,024 | 90% | 341.94 ± 44.03 | 624.30 ± 92.48 |
+| 1,000,000 | 10% | 77.32 ± 0.51 | 86.25 ± 2.65 |
+| 1,000,000 | 50% | 189.07 ± 3.17 | 329.44 ± 10.12 |
+| 1,000,000 | 90% | 326.85 ± 55.80 | 633.75 ± 104.31 |
 
-B was faster for width 1024 at 10% updates, while A was faster in the other cases listed. Some full-scale random and decrease-sweep configurations have large spread. These runs were made on an interactive Windows machine; no background-load or thermal isolation was recorded. The data does not establish why the timings vary. Timing changes from the earlier runs cannot be attributed solely to disabling counters because the runs happened at different times.
+*Table 1: Random maximum replay: counters-off runs. The spread is sample standard deviation.*
 
-![Counters-off random timings](results/timing-2026-11-20/max-width-u10.png)
+For width 1024 and 10% updates, B is faster in this set. The nine configurations show how the outcome varies with width and update mix. Some update-heavy runs have substantial spread. The measurements do not isolate the causes or establish a universal winner.
 
-The D5 scale workloads use 1,048,576 values and 1,000,000 operations:
+In D5’s million-operation workloads, difficult queries took 76.12 ± 1.01 ms for A and 37.47 ± 0.53 ms for B. The interleaved decrease/query workload took 45.59 ± 0.09 ms for A and 84.92 ± 4.28 ms for B. Each workload was checked against its deterministic expected answers.
 
-| Workload | A (ms) | B (ms) |
-| --- | ---: | ---: |
-| Difficult queries | 76.12 � 1.01 | 37.47 � 0.53 |
-| 500,000 decreases + 500,000 queries | 45.59 � 0.09 | 84.92 � 4.28 |
+![Figure 4. Replay time versus width, 10% updates.](docs/report-images/figure-04.png)
 
-![Counters-off D5 timings](results/timing-2026-11-20/d5-timings.png)
+*Figure 4: Replay time versus width, 10% updates.*
 
-The decrease study covers all 27 width/update/decrease configurations. Its separate prefix workload uses n=4096, 10,000 operations and 50% updates:
+![Figure 5. Maximum replay time versus width, 50% updates.](docs/report-images/figure-05.png)
 
-| Requested decreases among updates | Actual decreases | Prefix replay (ms) |
-| ---: | ---: | ---: |
-| 0% | 0 | 0.23 � 0.00 |
-| 50% | 2532 | 14.12 � 0.04 |
-| 100% | 5051 | 27.84 � 0.07 |
+*Figure 5: Maximum replay time versus width, 50% updates.*
 
-The prefix trend agrees with the predicted O(n U_-) rebuild term at fixed n. This fixed-size experiment does not prove the asymptotic bound.
+![Figure 6. Maximum replay time versus width, 90% updates.](docs/report-images/figure-06.png)
 
-![Prefix decrease timings](results/timing-2026-11-20/decreases/prefix-decreases.png)
+*Figure 6: Maximum replay time versus width, 90% updates.*
 
-D5 scale checks compare every maximum and count with the deterministic expected answer. Separate counter runs retain D5's expected totals: 39,000,000 B query blocks for the query case; 10,500,000 query blocks, 21,000,000 assignment steps and 11,000,000 lowered blocks for the decrease case. Small random and prefix checks use D4's array oracle. All 44 raw timing files have five repetitions per structure and matching checksums; the scale check logs are saved in the dated folder. Checksums are an agreement check, not a correctness proof.
+### 11.1 Varying the share of decreases
 
-## Newer cache recordings
+The full decrease sweep covers three widths, three update shares and three requested decrease shares. At width 1024 and 50% updates, the 0%, 50% and 100% decrease cases took respectively 276.21 ± 19.36, 254.75 ± 5.04 and 251.89 ± 4.83 ms for A, and 381.21 ± 58.67, 372.38 ± 59.38 and 375.50 ± 57.00 ms for B. These are full replay times, not isolated decrease costs. B’s spread is large and the measurements do not establish a clear decrease-rate trend for B.
 
-The 17 November traces have 1,568 A and 4,892 B samples when filtered by the benchmark thread IDs. One B sample occurs after its recorded process/thread lifetime; the stricter lifetime filter gives 4,891 B samples. The count audit, trace hashes and zero-loss tracerpt summaries are in `results/cache/`. Both counts and their filters are recorded there. The earlier 1,587/6,412 figures below belong to the older recordings.
+![Figure 7. D5 adversarial workload replay timings; n = 1,048,576.](docs/report-images/figure-07.png)
 
-These newer traces still include preparation, construction and 20 replays. They were recorded before the counters-off change and have different process durations. They do not explain the cause of the replay-time differences, and raw sample counts do not establish a cache-performance ranking. A further comparison would need traces from the same code/settings, repeated recordings and a clearly identified replay interval.
+*Figure 7: D5 adversarial workload replay timings; $n=1{,}048{,}576$.*
 
+![Figure 8. Full-scale decrease sweep, width 1024 and 50% updates.](docs/report-images/figure-08.png)
 
-## 17 November run with counters enabled
+*Figure 8: Full-scale decrease sweep, width 1024 and 50% updates.*
 
-This run used D1 revision `01da510`, D2 revision `e925e6f` and the D4 oracle. B's counters were enabled during timing while A's were disabled. The 20 November section above contains the counters-off rerun. The older results below use an earlier D1 snapshot.
+The prefix baseline was measured at $n=4096$ with 10,000 operations and 50% updates. With 0, 2,532 and 5,051 actual decreases, replay time was respectively 0.23, 14.12 and 27.84 ms. The rising trend is consistent with the rebuild term, but one fixed-size experiment does not prove an asymptotic bound.
 
-For one million values and operations, the five-run mean replay times were:
+![Figure 9. Prefix baseline replay versus decrease share.](docs/report-images/figure-09.png)
 
-| Width | Updates | Segment tree (ms) | Two-tree Fenwick (ms) |
+*Figure 9: Prefix baseline replay versus decrease share.*
+
+### 11.2 GCD benchmark
+
+The GCD benchmark used the D1 GCD tree and D4 array reference, with one million values and operations and seed 253. The following results are from the 17 November D1 update set, distinct from the 20 November maximum timings. Every entry is a five-run replay mean in milliseconds with sample standard deviation. The oracle was timed only at width 1; wider ranges were not timed against the array because scanning them is expensive. A dash denotes an unmeasured case, not zero time.
+
+![Figure 10. GCD replay versus width, 10% updates.](docs/report-images/figure-10.png)
+
+*Figure 10: GCD replay versus width, 10% updates.*
+
+![Figure 11. GCD replay versus width, 50% updates.](docs/report-images/figure-11.png)
+
+*Figure 11: GCD replay versus width, 50% updates.*
+
+![Figure 12. GCD replay versus width, 90% updates.](docs/report-images/figure-12.png)
+
+*Figure 12: GCD replay versus width, 90% updates.*
+
+| Width | Updates | GCD tree (ms) | Array oracle (ms) |
 | ---: | ---: | ---: | ---: |
-| 1 | 10% | 54.36 | 77.94 |
-| 1024 | 10% | 217.73 | 150.41 |
-| 1000000 | 10% | 76.33 | 96.36 |
-| 1024 | 50% | 263.41 | 375.78 |
-| 1024 | 90% | 307.02 | 581.02 |
+| 1 | 10% | 40.20 ± 0.57 | 11.23 ± 1.31 |
+| 1 | 50% | 142.99 ± 5.38 | 10.42 ± 0.13 |
+| 1 | 90% | 254.50 ± 5.38 | 5.97 ± 0.10 |
+| 1024 | 10% | 176.08 ± 2.57 | — |
+| 1024 | 50% | 220.24 ± 16.01 | — |
+| 1024 | 90% | 274.00 ± 13.20 | — |
+| 1,000,000 | 10% | 78.30 ± 1.42 | — |
+| 1,000,000 | 50% | 167.70 ± 10.73 | — |
+| 1,000,000 | 90% | 258.54 ± 8.21 | — |
 
-As in the earlier runs, B was faster for width 1024 at 10% updates, while A was faster in the other cases above. The measurements do not establish why. Raw runs, standard deviations and plots are in `results/d1-update/`.
+*Table 2: GCD replay measurements from 17 November.*
 
-![Updated maximum timings at 10 percent updates](results/d1-update/max-width-u10.png)
+### 11.3 Operation counters
 
-At width 1024 and 50% updates, the 0%, 50% and 100% decrease workloads took 259.37, 262.26 and 262.09 ms for A, and 382.22, 388.13 and 376.92 ms for B. These are mixed replay times, not isolated update costs. The full decrease study is in `results/d1-update-decreases/`.
+In the earlier separate GCD counter run at width 1024 and 50% updates, the tree selected 4,996,370 query blocks and performed 21,055,611 Euclidean remainder steps across replay. The latter excludes construction. The 511,597,568 array elements for the same query widths are a calculated scan count, not a measured oracle run. These counters use the earlier GCD workload and cannot be assumed to describe the later maximum timing runs.
 
-![Updated decrease workload timings](results/d1-update-decreases/width1024-updates50.png)
+### 11.4 Cache profiling
 
-For D5's million-operation query case, A and B averaged 67.01 and 38.79 ms; for the decrease case they averaged 44.63 and 143.31 ms. All operations in both scale cases were checked against their expected answers. D4's 100,000-operation D1 differential test and million-operation D2 test also passed. These results are for the current snapshots, not confirmed final team code.
+Separate Windows Performance Recorder traces were examined for the benchmark process. The newer traces show 1,568 A samples and 4,892 B samples under the thread-ID filter; a stricter lifetime filter gives 4,891 for B. These are sampled events, not exact totals or miss rates. The traces include preparation, construction and 20 replays, use counters enabled for B, and differ in process duration. They do not explain the timing difference or establish a cache-performance ranking. Source hashes, filters and trace summaries are documented in <code>results/raw/cache/README.md</code>.
 
-![Updated D5 scale timings](results/d1-update/d5-timings.png)
+### 11.5 Figure provenance
 
-The WPR cache samples below were collected with the earlier D1 snapshot. They cannot be used as measurements of this rerun; collect new traces after the team confirms its versions.
+| Figure | Script | Raw data |
+| --- | --- | --- |
+| 1 to 3 | drawn for the report | none |
+| 4 to 6 | `bench/plot_width.py` | `results/raw/timing-2026-11-20/max-summary.csv` |
+| 7 | `bench/plot_d5.py` | `results/raw/timing-2026-11-20/d5-summary.csv` |
+| 8 | TODO (Adi): script not recorded | `results/raw/timing-2026-11-20/decreases/summary.csv` |
+| 9 | `bench/plot_decreases.py` | `results/raw/timing-2026-11-20/decreases/prefix-summary.csv` |
+| 10 to 12 | `bench/plot_width.py` | `results/raw/gcd-summary.csv` |
 
-## Earlier measurements with the original D1 snapshot
+`scripts/run_all.sh` regenerates figures 4 to 7 and 9. TODO (Adi): add error bars to figure 8 and any figure that lacks them, as the guidelines require.
 
-These measurements use the earlier D1 snapshot documented in `results/README.md`. They are retained as the first measurement set; the 17 and 20 November runs are documented above.
+## 12. Limitations
 
-## Random maximum workload
+The benchmarked source revisions are documented with the raw CSVs and scripts in <code>results/raw/timing-2026-11-20/</code>. Confirm the team’s final release revisions, rerun affected checks if code changes. The original derivations and tools declarations remain in their respective repository directories. Cache traces are ignored by Git; the summaries are committed. The 20 November runs retain observed spread and should not be presented as thermally controlled measurements.
 
-For each point, both structures processed the same 1,000,000 operations over 1,000,000 elements. Times below are mean mixed replay milliseconds from five runs. Standard deviations and individual runs are in `results/`.
+The brief asks for all approaches across width and update mix. The committed GCD oracle timings cover width one; wider GCD cases measure the tree only. The array scan model predicts width-dependent work, but the available timings do not establish that trend experimentally. Complete the missing oracle measurements where feasible, or explicitly retain this limitation in the submission.
 
-| Width | Updates | Segment tree (ms) | Two-tree Fenwick (ms) |
-| ---: | ---: | ---: | ---: |
-| 1 | 10% | 49.68 | 72.28 |
-| 1024 | 10% | 194.37 | 144.75 |
-| 1000000 | 10% | 67.18 | 92.14 |
-| 1024 | 50% | 244.93 | 396.37 |
-| 1024 | 90% | 296.53 | 590.40 |
+Other limitations: `bin/app` runs on the native structures (`--backend=a` or `--backend=b-hybrid`), but the hybrid takes count and gcd from A because B does not provide them; there is no `run_ops --structure A|B` evaluation binary; the Structure A differential test runs 100,000 operations instead of 10^6; `REPORT.pdf` and `docs/slides/slides.pdf` are not yet exported or committed. Next measurements: rerun everything on one machine with counters off for both structures, add the array oracle at wider ranges, and take cache measurements with the same code and settings.
 
-For width 1024 at 10% updates, the Fenwick version was faster on this workload. As updates became more common, the segment tree was faster. This is consistent with both having logarithmic operations but different work per operation; the measurements alone do not establish the cause. Width and alignment affect the number of blocks, so a whole-array query need not cost more than a medium-width query.
+## 13. References
 
-![Maximum replay times at 10 percent updates](results/max-width-u10.png)
+[1] P. M. Fenwick, “A New Data Structure for Cumulative Frequency Tables,” *Software: Practice and Experience*, 24(3), 1994. https://doi.org/10.1002/spe.4380240306.
 
-![Maximum replay times at 50 percent updates](results/max-width-u50.png)
+[2] M. Dima and R. Ceterchi, “Efficient Range Minimum Queries using Binary Indexed Trees,” *Olympiads in Informatics*, 9, 2015. https://ioinformatics.org/oi/pdf/v9_2015_39_44.pdf.
 
-![Maximum replay times at 90 percent updates](results/max-width-u90.png)
+[3] CS253 / MA253, *Lab Project Descriptions*, Project 5, 2026.
 
-The D2 constructor scans the blocks it builds. Its total scanned length has an `O(n log n)` upper bound, whereas the Dima-Ceterchi paper describes a linear build. The timings measure this implementation, not a linear-build implementation. A's maximum-only tree is used so its updates do not also recompute GCD. B's counters are always enabled, while A's counters are disabled in timing runs. This difference can affect the comparison and needs attention before making a final claim.
+[4] M. de Berg, O. Cheong, M. van Kreveld and M. Overmars, *Computational Geometry: Algorithms and Applications*, 3rd ed., Springer, 2008, Chapter 10.
 
-## Varying decreases
+[5] J. L. Bentley, "Decomposable searching problems," *Information Processing Letters* 8(5):244–251, 1979.
 
-The newer generator changes a selected value by one on every update. It chooses whether to increase or decrease according to the requested percentage. At `n=1000000`, width 1024 and 50% updates, the mean mixed replay times in milliseconds were:
+[6] D. E. Knuth, *The Art of Computer Programming*, Vol. 2, 3rd ed., Addison-Wesley, 1997, §4.5.3.
 
-| Decreases among updates | Segment tree | Two-tree Fenwick |
-| ---: | ---: | ---: |
-| 0% | 250.19 | 375.10 |
-| 50% | 252.36 | 380.84 |
-| 100% | 269.54 | 384.90 |
+[7] cp-algorithms.com, "Segment Tree" and "Fenwick Tree" (study material).
 
-These are five-run means for seed 253, not isolated per-update times. The corresponding standard deviations and actual update counts are in `results/decrease-sweep/summary.csv`. The A/B comparison remains provisional because of the D1 revision and B's active counters. These cases change values by one; results may differ for larger changes or other value distributions.
-
-For the prefix-only workload at `n=4096`, 10,000 operations and 50% updates, the prefix baseline's mean replay time was 0.21 ms, 13.80 ms and 27.69 ms at 0%, 50% and 100% requested decreases. The actual decrease counts were 0, 2532 and 5051. Since this baseline rebuilds after each decrease, the rise is consistent with the model. Each of the three curves used the same seed and five runs; D4's oracle checked the queries on these cases. The full CSV and sample standard deviations are in `results/decrease-sweep/prefix-summary.csv`.
-
-![Prefix timings as decreases increase](results/decrease-sweep/prefix-decreases.png)
-
-## D5 workloads
-
-At `n=4096`, the repeated-rebuild workload used 1024 decreases and 1024 queries. The prefix baseline recorded 1024 rebuilds. Its mean replay time was 5.98 ms, versus 0.085 ms for the two-tree Fenwick and 0.127 ms for the segment tree. The separate decrease workload also recorded 1024 prefix rebuilds. These timings cover the specified small deterministic workloads; they are not million-element measurements.
-
-The updated D5 branch also specifies scale cases at `n=1048576`. For one million difficult queries, mean replay time was 61.97 ms for A and 40.71 ms for B. For 500,000 decreases interleaved with 500,000 queries, it was 37.27 ms for A and 142.75 ms for B. These are means of five runs; spread and raw values are in `results/d5-scale/summary.csv` and the timing CSVs.
-
-![D5 scale workload timings](results/d5-scale/timings.png)
-
-For the difficult-query case, B recorded 39,000,000 query blocks. For repeated decreases, it recorded 10,500,000 query blocks, 21,000,000 assignment steps and 11,000,000 lowered blocks. These totals match D5's analysis of this implementation. Every query result was checked against the known answer of the corresponding deterministic generator. The prefix baseline was not run at this size. B's counters were enabled during timing, so the timing comparison has the limitation described above.
-
-Random maximum checks and the three D5 generators were checked against D4's oracle at small sizes. Full-scale A/B timing checksums matched, but checksums do not replace the oracle. The GCD tree was also measured at full scale across the same widths and mixes. For width 1, its answers were checked against D4's oracle; wider GCD runs measured only the tree.
-
-In a separate GCD counter run at width 1024 and 50% updates, the tree selected 4,996,370 query blocks and performed 21,055,611 Euclidean remainder steps across the replay. The count excludes construction. Scanning those same query ranges with the array oracle would visit 511,597,568 elements; that figure is calculated from their widths, not a timed oracle run. The counters and definitions are in `results/gcd-counts/` and `bench/README.md`.
-
-## Predictions and observations
-
-The prefix baseline was expected to slow down as decreases forced rebuilds. Its replay time rose from 0.21 ms with no decreases to 27.69 ms with 5,051 decreases, which is consistent with the predicted rebuild cost. This is one fixed-size workload, so it does not by itself establish an asymptotic bound.
-
-The cost model did not predict a fixed winner between A and B. In the random maximum workload at 10% updates, B was faster at width 1024, while A was faster at widths 1 and 1,000,000. This variation is consistent with different block paths and constants, but the timings do not isolate their cause. The array model predicts more work for wider ranges; the GCD oracle was timed only at width 1, so these measurements do not establish that trend for the array.
-
-The GCD measurements count tree blocks and Euclidean remainder steps separately. They do not prove the tighter telescoping bound; its assumptions still need to be confirmed with D3. All comparisons should be repeated with the agreed final implementations and consistent timing instrumentation.
-
-The original WPR recordings produced 1,587 samples for A and 6,412 for B under their recorded filter. The newer recordings and their verified filter counts are documented above and in `results/cache/README.md`. Neither set is an exact cache-miss total or rate; both cover preparation and construction as well as replay.
+[8] Tools used are declared in [TOOLS.md](TOOLS.md).

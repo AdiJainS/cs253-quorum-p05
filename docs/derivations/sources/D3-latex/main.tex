@@ -1,0 +1,181 @@
+\documentclass[10pt,a4paper]{article}
+\usepackage[margin=17mm,headheight=13pt,headsep=6mm,footskip=9mm]{geometry}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern,microtype}
+\usepackage{enumitem,fancyhdr}
+\usepackage[hidelinks]{hyperref}
+\hypersetup{pdftitle={D3 Architect: Range GCD},pdfauthor={Anushri Maheshwari (250041005)}}
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{4pt}
+\setlist[itemize]{leftmargin=*,nosep}
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{\small D3 Architect: Range GCD}
+\fancyhead[R]{\small Anushri Maheshwari \,|\, 250041005}
+\fancyfoot[C]{\small\thepage\ of 2}
+\renewcommand{\headrulewidth}{0.3pt}
+\newcommand{\g}{\operatorname{gcd}}
+\newcommand{\sect}[1]{\par\smallskip{\large\bfseries #1}\par\smallskip}
+\begin{document}
+\begin{center}
+{\LARGE\bfseries Range GCD: Algebra and Query Complexity}\\[4pt]
+{\large Anushri Maheshwari \quad Roll No.: 250041005}\\[2pt]
+CS 253 / MA 253 \quad Project 5 \quad D3 Architect
+\end{center}
+\vspace{-3pt}
+\textbf{Setting.}
+Store nonnegative integers in an array of length $n$, with point assignments
+and zero-based half-open queries $[l,r)$.
+For signed inputs, take their nonnegative magnitudes before the gcd fold.
+Define $\g(0,0)=0$.
+Let $V$ bound every value throughout the replay, including later assignments.
+Set $H=1+\log_2(n+1)$ and $L=1+\log_2(V+1)$ to cover empty arrays and zeros.
+
+\sect{1. GCD is a commutative monoid}
+For each positive integer $d$, the defining divisibility property is
+\[
+ d\mid \g(a,b)\quad\Longleftrightarrow\quad d\mid a\ \text{and}\ d\mid b.
+\]
+This includes zero inputs, since every positive integer divides zero.
+Nonnegative integers with the same positive divisors are equal: positive
+ones divide each other, while only zero has every positive integer as a divisor.
+
+\textbf{Commutativity.}
+The common-divisor condition is symmetric, so $\g(a,b)=\g(b,a)$.
+
+\textbf{Associativity.}
+For every positive $d$,
+\[
+\begin{aligned}
+d\mid\g(\g(a,b),c)
+&\Longleftrightarrow d\mid a,\ d\mid b,\ d\mid c\\
+&\Longleftrightarrow d\mid\g(a,\g(b,c)).
+\end{aligned}
+\]
+The characterization gives $\g(\g(a,b),c)=\g(a,\g(b,c))$, also when zeros occur.
+
+\textbf{Identity.}
+$\g(a,0)$ and $a$ have the same positive divisors, so
+$\g(a,0)=a=\g(0,a)$. Thus $(\mathbb{Z}_{\ge0},\g,0)$ is a commutative monoid.
+
+\sect{2. Segment-tree correctness and the product bound}
+Each real leaf stores the current value, padding leaves store $0$, and
+each parent stores the gcd of its children.
+Induction on height proves that each node holds the gcd of its covered leaves.
+An assignment recomputes its ancestor path bottom to top, restoring the invariant
+after increases, decreases, or replacement by zero.
+
+A range query selects disjoint node intervals partitioning $[l,r)$.
+Associativity permits their gcds to be folded, and identity $0$ handles empty
+ranges and padding. The implementation uses two ordered accumulators.
+At most two blocks are selected at each of $O(H)$ levels; traversal also costs
+$O(H)$. Euclid requires $O(L)$ remainder operations per gcd call.
+Therefore the direct bound is
+\[
+ \boxed{O(HL)}
+ \qquad\text{or }O(\log n\cdot\log V)\text{ when }n,V\ge2.
+\]
+
+\sect{3. A ratio-sensitive Euclidean lemma}
+\textbf{Lemma.}
+For positive $a,b$ and $d=\g(a,b)$, remainder-based Euclid performs
+$O(1+\log_2(a/d))$ divisions, even if $b>a$.
+
+\textbf{Proof.}
+Divide both inputs and all nonzero remainders by $d$.
+The quotients and number of divisions are unchanged.
+After at most one initial division, the smaller positive operand is at most $a/d$.
+For $x\ge y>0$, write $r=x\bmod y$.
+If $r\le y/2$, the smaller operand has already halved.
+Otherwise $r>y/2$, and the next remainder is $y\bmod r=y-r<y/2$.
+Thus it halves within at most two divisions until termination.
+This gives the claimed logarithmic bound.
+If $b=0$, the call returns $a$ in constant time instead. \hfill$\square$
+
+\newpage
+\sect{4. The tighter bound by Euclidean telescoping}
+First consider one accumulator receiving node gcds $x_1,\ldots,x_k$.
+Put $g_0=0$ and $g_i=\g(g_{i-1},x_i)$.
+While the accumulator is zero, a call costs $O(1)$:
+$\g(0,x)$ takes at most one remainder operation.
+If no positive value is encountered, the entire fold costs $O(k)$.
+
+Otherwise let $g_j$ be the first positive accumulator; then $1\le g_j\le V$.
+For $i>j$, $g_i$ is a positive divisor of $g_{i-1}$.
+The lemma gives a cost of
+\[
+ O\!\left(1+\log_2\frac{g_{i-1}}{g_i}\right)
+\]
+for call $i$. The same expression covers $x_i=0$, which leaves the
+accumulator unchanged at constant cost. Summing the logarithmic charges,
+\[
+\begin{aligned}
+\sum_{i=j+1}^{k}\log_2\frac{g_{i-1}}{g_i}
+ &=\log_2\left(
+     \frac{g_j}{g_{j+1}}\frac{g_{j+1}}{g_{j+2}}\cdots
+     \frac{g_{k-1}}{g_k}\right)\\
+ &=\log_2\frac{g_j}{g_k}
+ \le \log_2 V.
+\end{aligned}
+\]
+The empty sum covers $j=k$.
+Thus the fold takes $O(k+L)$ operations.
+Counting only the number of strict accumulator decreases would be insufficient:
+the lemma also pays for the divisions \emph{inside} each call.
+
+\textbf{Match to the code.}
+The left and right query accumulators each form such a chain.
+Their calls may be interleaved, but they telescope independently.
+There are $O(H)$ selected blocks in total, and the final merge of the
+accumulators adds at most $O(L)$. Including traversal yields
+\[
+ \boxed{O(H+L)=O(1+\log(n+1)+\log(V+1))}.
+\]
+For $n,V\ge2$ this is conventionally written
+$\boxed{O(\log n+\log V)}$.
+This is an upper bound, not a claim that every query attains it.
+
+\sect{5. Computational model and limits}
+\begin{itemize}
+\item \textbf{Arithmetic-operation model.}
+The proof counts Euclidean remainder steps and tree operations.
+It is a time bound on a word RAM only when values, indices, and addresses
+fit machine words and comparison, indexing, and division/remainder have constant cost.
+The word width must accommodate both $\log(V+1)$ and $\log(n+1)$.
+\item \textbf{Fixed-width C++.}
+The application restricts calibration factors to $[0,10^9]$ and stores them
+as \texttt{unsigned long long}. For a fixed value bound, $L$ is constant
+and queries cost $O(H)$ in this model.
+Actual remainder latency depends on the machine.
+Signed backend inputs are converted to unsigned magnitudes safely, including
+the minimum signed value.
+\item \textbf{Bit complexity.}
+For arbitrary-precision $b$-bit inputs, with
+$b=\max\{1,\lceil\log_2(V+1)\rceil\}$, there are $O(H+b)$ divisions;
+they are not constant-time.
+Charging a conservative $O(b^2)$ bit operations per schoolbook remainder
+gives $O((H+b)b^2)$ arithmetic bit operations, plus representation and index costs.
+This deliberately loose estimate is not an optimal bit bound.
+\end{itemize}
+
+\sect{6. Implementation scope and other bounds}
+The gcd tree uses $O(n)$ storage and $O(n)$ construction merges, giving the
+safe construction bound $O(nL)$.
+Retain the safe $O(HL)$ point-assignment bound:
+recomputing sibling pairs is not the same accumulator chain as a query.
+The additive proof specifically concerns the explicit Euclidean gcd routine.
+
+In \texttt{app/}, both replay modes obtain calibration gcd from Structure A.
+The B-hybrid mode uses Structure B only for maximum and A for maximum count
+and gcd; it is not a pure-B gcd implementation.
+Differential and invariant tests check the code, while the argument above
+establishes the asymptotic query bound.
+
+\smallskip
+{\small\textbf{References.}
+Project 5 brief, D3 requirement.
+D.\ E.\ Knuth, \emph{The Art of Computer Programming}, Vol.\ 2, 3rd ed.,
+\S4.5.3 (Euclid's algorithm).
+The ratio lemma and query telescope are proved explicitly above.}
+\end{document}

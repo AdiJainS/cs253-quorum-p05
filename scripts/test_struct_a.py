@@ -22,6 +22,7 @@ def main():
                 continue
             binary = output / (source.stem + (".exe" if sys.platform == "win32" else ""))
             command = [args.cxx, "-std=c++17", "-O2", "-Wall", "-Wextra", "-pedantic"]
+            command.extend(["-I", str(root / "include")])
             if counters:
                 command.append("-DSTRUCTA_ENABLE_COUNTERS")
             command.extend([str(source), "-o", str(binary)])

@@ -1,25 +1,21 @@
-# TOOLS.md
+# Tools used
 
-## D6: Analyst
+Every AI assistant, code generator and other significant tool the team used. Test results quoted anywhere in the repository come from compiling and running the code locally.
 
-| Tool | Work |
-| --- | --- |
-| Codex (OpenAI) | Expanded the cost estimates and references. |
-| Codex (OpenAI) | Helped create the GCD benchmark and build instructions. |
-| Codex (OpenAI) | Helped draft the cost model and derivation. |
-| Codex (OpenAI) | Helped with the maximum benchmark, integration, result summaries and plots. |
-| Codex (OpenAI) | Helped set up cache profiling and draft the presentation. |
-| ReportLab (Python library) | Generated the derivation PDF. |
-| Windows Performance Recorder | Collected the cache profiling traces. |
-| Matplotlib (Python library) | Created benchmark graphs. |
-| Tracerpt | Exported the profiling traces for analysis. |
+| Tool and version | Used by | Used for | Files affected | What we changed or verified |
+|------------------|---------|----------|----------------|-----------------------------|
+| ChatGPT (OpenAI), November 2026 | Vishruth Agrawal (D2) | Explaining the Dima–Ceterchi structure, first drafts of the D2 proof and speaker notes | `docs/derivations/sources/D2-structureB-draft.md`, `docs/slides/D2-speaker-notes.md` | Checked every proof step against a worked example; wrote the final derivation myself |
+| AI coding assistant, November 2026 | Vishruth Agrawal (D2) | Testing Structure B, and the repository clean-up on 21 November (Makefile, `scripts/run_all.sh`, CI workflow, README, REPORT and INTERFACE restructuring, file moves) | `src/structB/*`, `tests/structB/*`, `Makefile`, `scripts/run_all.sh`, `.github/workflows/test.yml`, `README.md`, `REPORT.md`, `INTERFACE.md` | Compiled and ran every test; `make test` passes; I can explain the code and the D2 proof |
+| ChatGPT (OpenAI) | Sushmita Patil (D4) | Learning oracle-based and differential testing; first drafts of the array oracle, operation generator, differential test, failure logging and shrinker; organising the D4 proof | `oracle/*`, `docs/derivations/D4_250001069.pdf` | Adapted to the team's indexing and query interfaces; ran 1,000,000 operations on B and 100,000 on A with no mismatches; an injected fault was detected and a 5-operation failure reduced to 2 |
+| ChatGPT / Codex (OpenAI) | Vanshika Agrawal (D5) | Explaining the prefix-maximum limitation; drafting the adversarial generators, verification programs, expected counters and the D5 proof | `adversary/*`, `tests/adversary/*`, `docs/derivations/D5_250001076.pdf` | Added the code to the project by hand, compiled and ran it, checked small and full-scale results, simplified the runner and output |
+| Codex (OpenAI) | Adi Jain (D6) | Cost estimates and references; cost model and derivation draft | `docs/derivations/sources/D6-analyst-draft.md` | Reviewed the model; kept it older than the measurements |
+| Codex (OpenAI) | Adi Jain (D6) | GCD and maximum benchmarks, integration, result summaries, plots, cache-profiling setup, presentation draft, the 20 November counters-off build and reruns | `bench/*`, `results/*`, `docs/slides/*` | Checked builds against the oracle and D5 expected answers; filtered trace exports by benchmark thread lifetimes; kept earlier measurements |
+| ReportLab (Python library) | Adi Jain (D6) | Generating the prefix cost-model PDF | `docs/derivations/sources/make_d6_pdf.py` | — |
+| Matplotlib (Python library) | Adi Jain (D6) | Benchmark plots | `bench/plot_*.py`, `results/figures/*` | — |
+| Windows Performance Recorder, Tracerpt | Adi Jain (D6) | Cache profiling traces and their export | `results/raw/cache/*` | Documented the filters and the limits of sampled counts |
+| ChatGPT (OpenAI), November 2026 | Tia Mehra (D1) | Learning how a segment tree works over a monoid and why the (maximum, count) pair needs no inverse; suggesting test cases | `src/structA/*`, `tests/structA/*`, `docs/derivations/D1_250041039.pdf` | Wrote and compiled the code and tests myself; ran every test against the array oracle; can explain the code and the D1 proof |
+| Codex (OpenAI), November 2026 | Anushri Maheshwari (D3, 250041005) | Revised the C++ implementation, shared adapters, application and tests; typeset the final proof in LaTeX | `app/*`, `include/*`, `INTERFACE.md`, `README.md`, `docs/derivations/D3_250041005.pdf`, `docs/derivations/sources/D3-latex/main.tex` | Assistance also included initial code and proof drafts. Automated compilation, sample, seeded, scale, regression and sanitizer checks were run in the workspace. Final personal review and understanding remain the student's responsibility. |
 
-20 November update: Codex helped add the D6 counters-off build, rerun the maximum benchmarks and audit the newer WPR trace counts. The timing and counter builds were checked against the oracle and D5 expected answers; tracerpt exports were filtered by benchmark thread lifetimes. Earlier measurements were preserved.
+## Representative prompts
 
-## D2: Structure B owner (Vishruth Agrawal, 250001078)
-
-**Tool used:** Claude (Anthropic), and ChatGPT (OpenAI)
-
-### Verification
-
-Every test result for Structure B comes from compiling and running the tests locally. I can explain the code and the D2 proof, and I checked the proof steps against the running example in the derivation.
+Representative prompts included requests to explain concepts (for example, why prefix differences fail for maximum, or how Euclid's algorithm telescopes) and to suggest test cases. D3 also requested initial code and proof drafts, revisions to the shared adapters and application, documentation, LaTeX typesetting and automated build/test assistance. Each member is responsible for retaining their own prompt history.

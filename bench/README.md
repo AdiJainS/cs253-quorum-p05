@@ -1,25 +1,22 @@
 # Benchmarks
 
-Build with a C++17 compiler, from the repository root:
+Build from the repository root with a C++17 compiler (GCC 7 or newer, or Clang). `make all` builds the timing binaries into `bin/`. The counter builds are separate:
 
-```powershell
-New-Item -ItemType Directory -Force .bench-deps | Out-Null
-g++ -std=c++17 -O2 -DSTRUCTB_DISABLE_COUNTERS bench/max_benchmark.cpp -o .bench-deps/max_benchmark.exe
-g++ -std=c++17 -O2 -DSTRUCTA_ENABLE_COUNTERS bench/max_benchmark.cpp -o .bench-deps/max_counts.exe
-g++ -std=c++17 -O2 bench/gcd_benchmark.cpp -o .bench-deps/gcd_benchmark.exe
-g++ -std=c++17 -O2 -DSTRUCTA_ENABLE_COUNTERS bench/gcd_benchmark.cpp -o .bench-deps/gcd_counts.exe
+```sh
+make all
+make bin/max_counts bin/gcd_counts
 ```
 
-On this machine GCC 6.3 is too old for `std::gcd`. The local C++17 compiler is `C:\Users\Adi Jain\Documents\Codex\2026-11-10\my\work\cpp-toolchain\ziglang\zig.exe`; replace `g++` in the commands with `& "C:\Users\Adi Jain\Documents\Codex\2026-11-10\my\work\cpp-toolchain\ziglang\zig.exe" c++` when building here. This compiler is not included in the repository.
+`bin/max_benchmark` is built with `-DSTRUCTB_DISABLE_COUNTERS`. The counter builds use `-DSTRUCTA_ENABLE_COUNTERS` and leave B's counters on. The measurements already in `results/raw/` were taken on Windows with a Zig C++ toolchain; the commands here are for macOS and Linux.
 
 Run a correctness check before timing. Arguments are `N OPERATIONS WIDTH UPDATE_PERCENT SEED RUNS WORKLOAD MODE [DECREASE_PERCENT]`:
 
-```powershell
-.\.bench-deps\max_benchmark.exe 1000 10000 64 20 253 5 random check
-.\.bench-deps\max_benchmark.exe 1000 10000 64 20 253 5 random check 75
-.\.bench-deps\max_benchmark.exe 4096 1024 1 0 0 5 rebuild check
-.\.bench-deps\max_counts.exe 4096 1024 1 0 0 5 rebuild counts
-python bench/test_decrease.py .bench-deps/max_benchmark.exe
+```sh
+./bin/max_benchmark 1000 10000 64 20 253 5 random check
+./bin/max_benchmark 1000 10000 64 20 253 5 random check 75
+./bin/max_benchmark 4096 1024 1 0 0 5 rebuild check
+./bin/max_counts 4096 1024 1 0 0 5 rebuild counts
+python3 bench/test_decrease.py bin/max_benchmark
 ```
 
 Workloads are `random`, `rebuild`, `decrease` and `query`. The last three use D5's generators. For D5, `OPERATIONS` is the generator parameter: number of decreases or queries. The generator may produce more operations than that parameter. Its query endpoints are inclusive; the A adapter changes them to half-open ranges. The prefix-only baseline is checked and measured only when all queries start at index 0.
@@ -28,47 +25,47 @@ For random workloads, the optional `DECREASE_PERCENT` chooses the percentage of 
 
 `check` compares every maximum query with D4's oracle, including A's count. `time` measures the max-only A tree and B. `prefix` times the baseline separately; it rejects non-prefix queries. `counts` requires the counter build. Build maximum timing runs with `-DSTRUCTB_DISABLE_COUNTERS` and without `STRUCTA_ENABLE_COUNTERS`, so A and B both have counters disabled. Build counter runs with `-DSTRUCTA_ENABLE_COUNTERS` and without `STRUCTB_DISABLE_COUNTERS`, so both collect counters. The harness rejects timing or counter modes built with the wrong settings. The switch is local to the D6 copy of B; the data-structure algorithm is unchanged.
 
-`time-a` and `time-b` run only A or B, respectively. These modes help record separate profiler traces while using the same seed and arguments. See `results/cache/README.md` for the cache recordings and instructions.
+`time-a` and `time-b` run only A or B, respectively. These modes help record separate profiler traces while using the same seed and arguments. See `results/raw/cache/README.md` for the cache recordings and instructions.
 
 For D5's full-scale query and decrease cases, `check-scale` checks every result against the known expected maximum and count. `counts-ab` collects A and B counters without running the prefix baseline, whose repeated full rebuilds are too expensive at this size:
 
-```powershell
-.\.bench-deps\max_benchmark.exe 1048576 1000000 1 0 0 5 query check-scale
-.\.bench-deps\max_benchmark.exe 1048576 500000 1 0 0 5 decrease check-scale
-.\.bench-deps\max_benchmark.exe 1048576 500000 1 0 0 5 decrease time
-.\.bench-deps\max_counts.exe 1048576 500000 1 0 0 5 decrease counts-ab
-python bench/plot_d5.py results/d5-scale/summary.csv results/d5-scale/timings.png
+```sh
+./bin/max_benchmark 1048576 1000000 1 0 0 5 query check-scale
+./bin/max_benchmark 1048576 500000 1 0 0 5 decrease check-scale
+./bin/max_benchmark 1048576 500000 1 0 0 5 decrease time
+./bin/max_counts 1048576 500000 1 0 0 5 decrease counts-ab
+python3 bench/plot_d5.py results/raw/d5-scale/summary.csv results/figures/d5-scale/timings.png
 ```
 
 The decrease generator creates one query after each assignment, so its parameter of 500,000 produces one million operations. `check-scale` is specific to these two D5 generators; the general `check` mode uses D4's array oracle and is best kept to manageable sizes.
 
 Run the full-scale random matrix with five repetitions:
 
-```powershell
-python bench/run_matrix.py .bench-deps/max_benchmark.exe results
-python bench/summarize.py (Get-ChildItem results/max-n*.csv | ForEach-Object { $_.FullName }) | Set-Content -Encoding utf8 results/max-summary.csv
-python bench/plot_width.py results/max-summary.csv results/max-width-u10.png --n 1000000 --operations 1000000 --update-percent 10 --seed 253 --workload random
-python bench/run_matrix.py .bench-deps/gcd_benchmark.exe results --metric gcd
-python bench/run_matrix.py .bench-deps/max_benchmark.exe new-results --decrease-percent 75
-python bench/plot_decreases.py results/decrease-sweep/prefix-summary.csv results/decrease-sweep/prefix-decreases.png --n 4096 --operations 10000 --width 4096 --update-percent 50 --seed 253 --log-y
+```sh
+python3 bench/run_matrix.py bin/max_benchmark results/raw/rerun
+python3 bench/summarize.py results/raw/max-n*.csv > results/raw/max-summary.csv
+python3 bench/plot_width.py results/raw/max-summary.csv results/figures/max-width-u10.png --n 1000000 --operations 1000000 --update-percent 10 --seed 253 --workload random
+python3 bench/run_matrix.py bin/gcd_benchmark results/raw/rerun-gcd --metric gcd
+python3 bench/run_matrix.py bin/max_benchmark new-results --decrease-percent 75
+python3 bench/plot_decreases.py results/raw/decrease-sweep/prefix-summary.csv results/figures/decrease-sweep/prefix-decreases.png --n 4096 --operations 10000 --width 4096 --update-percent 50 --seed 253 --log-y
 ```
 
 The matrix uses widths 1, 1024 and 1000000 and update shares 10, 50 and 90 percent. The `run_matrix.py --help` options change the sizes and seed. Files generated with `--decrease-percent` have a `-d` suffix. The script refuses to overwrite existing files. For plots from these files, pass the same `--decrease-percent` to `plot_width.py`. The summary groups different requested decrease percentages separately; older CSVs without the new fields remain supported. For GCD, the matrix checks and times the oracle at width 1 and runs only the tree for wider queries. CSV timings include build and mixed replay separately. Summary spread is sample standard deviation. D5 is deterministic; its CSV uses seed 0 and -1 for random-workload fields that do not apply.
 
 To repeat the whole decrease study, including its checks, prefix runs, summaries and plots, choose a new folder and run:
 
-```powershell
-python bench/run_decrease_study.py .bench-deps/max_benchmark.exe new-decrease-results
+```sh
+python3 bench/run_decrease_study.py bin/max_benchmark new-decrease-results
 ```
 
 The output folder must not already exist. The full-scale portion runs 27 configurations with five repetitions per structure. Record the machine and compiler details with the new results.
 
 GCD benchmark arguments are `N OPERATIONS WIDTH UPDATE_PERCENT SEED RUNS MODE`, where mode is `check`, `tree` or `oracle`:
 
-```powershell
-.\.bench-deps\gcd_benchmark.exe 1000 10000 64 20 253 5 check
-.\.bench-deps\gcd_counts.exe 1000 10000 64 20 253 1 counts
-python bench/test_gcd_counts.py .bench-deps/gcd_benchmark.exe .bench-deps/gcd_counts.exe
+```sh
+./bin/gcd_benchmark 1000 10000 64 20 253 5 check
+./bin/gcd_counts 1000 10000 64 20 253 1 counts
+python3 bench/test_gcd_counts.py bin/gcd_benchmark bin/gcd_counts
 ```
 
 The GCD benchmark uses D1's GCD tree and D4's half-open GCD reference. Its separate `counts` build reports query blocks and merges, update visits and merges, and Euclidean remainder steps during replay. `oracle_elements_if_scanned` is calculated from query widths; the counter run does not execute the array oracle. Construction is excluded from those counters. The maximum benchmark checks D4's general oracle, which uses inclusive ranges. Neither benchmark measures cache misses. Store profiler output before drawing cache conclusions.

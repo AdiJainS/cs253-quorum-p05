@@ -3,82 +3,107 @@
 #include <stdexcept>
 #include <vector>
 
-#include "../oracle/operations.hpp"
+#include "operations.hpp"
 
+// A workload contains starting values and operations.
 struct Workload {
     std::vector<long long> initial;
     std::vector<Operation> operations;
 };
 
-inline Workload makeRebuildWorkload(int n, int k) {
-    if (n < 1 || k < 1 || k > n) {
-        throw std::invalid_argument("Require n >= 1 and 1 <= k <= n");
+// Examples: 4, 8, 16 and 32 are powers of two.
+inline bool isPowerOfTwo(int n) {
+    if (n < 1) {
+        return false;
     }
 
-    Workload workload;
+    while (n % 2 == 0) {
+        n = n / 2;
+    }
 
+    return n == 1;
+}
+
+// Workload 1: remove the current maximum repeatedly.
+inline Workload makeRebuildWorkload(int n, int k) {
+    if (n < 1 || k < 1 || k > n) {
+        throw std::invalid_argument(
+            "Require n >= 1 and 1 <= k <= n"
+        );
+    }
+
+    Workload result;
+
+    // Example for n=4: [4, 3, 2, 1].
     for (int i = 0; i < n; i++) {
-        workload.initial.push_back(n - i);
+        result.initial.push_back(n - i);
     }
 
     for (int i = 0; i < k; i++) {
-        workload.operations.push_back({
+        result.operations.push_back({
             OpType::ASSIGN, i, 0, 0
         });
 
-        workload.operations.push_back({
+        result.operations.push_back({
             OpType::QUERY_MAX, 0, n - 1, 0
         });
     }
 
-    return workload;
+    return result;
 }
 
+// Workload 2: repeat a maximum-step query.
 inline Workload makeQueryWorkload(int n, int queryCount) {
-    if (n < 4 || (n & (n - 1)) != 0 || queryCount < 1) {
+    if (n < 4 || !isPowerOfTwo(n) || queryCount < 1) {
         throw std::invalid_argument(
             "Require power-of-two n >= 4 and queryCount >= 1"
         );
     }
 
-    Workload workload;
+    Workload result;
 
+    // Example for n=4: [1, 2, 3, 4].
     for (int i = 0; i < n; i++) {
-        workload.initial.push_back(i + 1);
+        result.initial.push_back(i + 1);
     }
 
     for (int i = 0; i < queryCount; i++) {
-        workload.operations.push_back({
+        result.operations.push_back({
             OpType::QUERY_MAX, 0, n - 2, 0
         });
     }
 
-    return workload;
+    return result;
 }
 
+// Workload 3: repeatedly decrease the unique maximum at index 0.
 inline Workload makeDecreaseWorkload(int n, int decreases) {
-    if (n < 4 || (n & (n - 1)) != 0 || decreases < 1) {
+    if (n < 4 || !isPowerOfTwo(n) || decreases < 1) {
         throw std::invalid_argument(
             "Require power-of-two n >= 4 and decreases >= 1"
         );
     }
 
-    Workload workload;
+    Workload result;
 
-    workload.initial.assign(n, 0);
-    workload.initial[0] = static_cast<long long>(decreases) + 1;
+    for (int i = 0; i < n; i++) {
+        result.initial.push_back(0);
+    }
+
+    // 1LL makes the addition use long long arithmetic.
+    result.initial[0] = decreases + 1LL;
 
     for (int i = 0; i < decreases; i++) {
-        long long value = static_cast<long long>(decreases) - i;
+        long long value = decreases - i;
 
-        workload.operations.push_back({
+        result.operations.push_back({
             OpType::ASSIGN, 0, 0, value
         });
 
-        workload.operations.push_back({
+        result.operations.push_back({
             OpType::QUERY_MAX, 0, n - 1, 0
         });
     }
 
-    return workload;
+    return result;
 }

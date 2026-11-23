@@ -1,3 +1,9 @@
+# Layout
+
+- `raw/` holds every CSV, check log and profiler summary. The folder structure inside it is the one the experiments originally wrote.
+- `figures/` holds every plot, with the same sub-folder names as in `raw/`. Each plot is made from the CSVs in the matching `raw/` folder by the scripts in `bench/`.
+- Figures used only in the report text are in `docs/report-images/`.
+
 # Benchmark results
 
 The 20 November counters-off maximum timings are in `timing-2026-11-20/`. Its README records revisions, compiler flags and checks. These runs disable both A and B counters. Earlier folders retain their original instrumentation. For the newer cache recordings and the difference between B's 4,892 thread-ID samples and 4,891 lifetime-filtered samples, see `cache/README.md`.
@@ -23,7 +29,7 @@ Recorded on 16 November 2026. These are preliminary results for the snapshots li
 
 `counts-n*.csv` files contain separate instrumented runs of the random workloads, using the size, width, update percentage and seed in each filename. Prefix counters are omitted from random runs; the D5 files include them for prefix workloads. B's `assignBlocks` includes its preparatory and update steps; A's update counter counts visits, so the two counts describe different operations.
 
-The later `results/d5-scale/` files use D5's workload analysis from `5085c20`; the generators did not change since `c754134`. Each case has 1,048,576 elements and one million operations. `query` has one million difficult queries; `decrease` has 500,000 decreases, each followed by a query. The files include five-run timing data, separate counters and result checks against the expected values of these deterministic workloads. They were run on the same machine and compiler listed above. The prefix baseline was not run at this size. These results still depend on the earlier, unconfirmed D1 snapshot.
+The later `results/raw/d5-scale/` files use D5's workload analysis from `5085c20`; the generators did not change since `c754134`. Each case has 1,048,576 elements and one million operations. `query` has one million difficult queries; `decrease` has 500,000 decreases, each followed by a query. The files include five-run timing data, separate counters and result checks against the expected values of these deterministic workloads. They were run on the same machine and compiler listed above. The prefix baseline was not run at this size. These results still depend on the earlier, unconfirmed D1 snapshot.
 
 A and B returned matching checksums in all full-scale timing runs. Separate small checks compared each query with D4's oracle, including A's maximum count. Checksums do not prove correctness on all possible inputs. The full-scale timing runs did not replay the array oracle because it scans each queried range.
 
