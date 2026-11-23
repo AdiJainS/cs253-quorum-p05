@@ -29,4 +29,9 @@ python3 bench/plot_d5.py "$RAW/d5-summary.csv" "$FIG/d5-timings.png"
 python3 bench/plot_decreases.py "$RAW/decreases/prefix-summary.csv" "$FIG/decreases/prefix-decreases.png" \
     --n 4096 --operations 10000 --width 4096 --update-percent 50 --seed 253 --log-y
 
+python3 bench/plot_decreases.py "$RAW/decreases/summary.csv" "$FIG/decreases/width1024-updates50.png" \
+    --n 1000000 --operations 1000000 --width 1024 --update-percent 50 --seed 253
+python3 bench/plot_prediction.py "$RAW/decreases/prefix-summary.csv" "$FIG/decreases/prefix-prediction.png" \
+    --n 4096 --operations 10000 --update-percent 50 --seed 253
+
 echo "run_all finished"

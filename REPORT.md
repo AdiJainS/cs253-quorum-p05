@@ -1,6 +1,6 @@
 # Aggregates a Fenwick Tree Cannot Support
 
-**CS253 / MA253 – Project 5 – Report**
+**CS253 / MA253 – Project 5 – Report – Team Quorum**
 
 21 November 2026
 
@@ -19,14 +19,14 @@ We study point assignments and range aggregates for a sensor array. A segment tr
 | Adversary | Vanshika Agrawal | 250001076 | @vanshi040907 | D5 |
 | Analyst | Adi Jain | 250001083 | @AdiJainS | D6 |
 
-What each member built, with links to main commits (pull requests are listed in the repository's Pull requests tab):
+What each member built, with links to main commits (links to pull requests are given where they exist):
 
-- **Tia Mehra (Structure A):** generic iterative segment tree core ([451757b](https://github.com/AdiJainS/Aggregates-A-Fenwick-Tree-Cannot-Support/commit/451757b)), maximum/count and gcd wrapper ([0ebb69f](https://github.com/AdiJainS/Aggregates-A-Fenwick-Tree-Cannot-Support/commit/0ebb69f)), query, update, invariant and differential tests ([b72444b](https://github.com/AdiJainS/Aggregates-A-Fenwick-Tree-Cannot-Support/commit/b72444b)), operation counters ([10d8e8e](https://github.com/AdiJainS/Aggregates-A-Fenwick-Tree-Cannot-Support/commit/10d8e8e)), pull request 5.
-- **Vishruth Agrawal (Structure B):** Fenwick maximum build and query ([ec8e003](https://github.com/AdiJainS/Aggregates-A-Fenwick-Tree-Cannot-Support/commit/ec8e003)), assign with decreases ([4bd8733](https://github.com/AdiJainS/Aggregates-A-Fenwick-Tree-Cannot-Support/commit/4bd8733)), prefix-only baseline ([09e2867](https://github.com/AdiJainS/Aggregates-A-Fenwick-Tree-Cannot-Support/commit/09e2867)), O(log n) assign with the slow version kept as a cross-check ([9b3aa9d](https://github.com/AdiJainS/Aggregates-A-Fenwick-Tree-Cannot-Support/commit/9b3aa9d)), counters and their tests ([c06eb48](https://github.com/AdiJainS/Aggregates-A-Fenwick-Tree-Cannot-Support/commit/c06eb48), [e925e6f](https://github.com/AdiJainS/Aggregates-A-Fenwick-Tree-Cannot-Support/commit/e925e6f)), D2 derivation, pull request 3.
-- **Anushri Maheshwari (Architect):** sensor replay application and gcd segment tree ([380085c](https://github.com/AdiJainS/Aggregates-A-Fenwick-Tree-Cannot-Support/commit/380085c), [06784fb](https://github.com/AdiJainS/Aggregates-A-Fenwick-Tree-Cannot-Support/commit/06784fb)), seeded tests and invariant checks ([8bce4a7](https://github.com/AdiJainS/Aggregates-A-Fenwick-Tree-Cannot-Support/commit/8bce4a7)), interface document and D3 proof ([1412acf](https://github.com/AdiJainS/Aggregates-A-Fenwick-Tree-Cannot-Support/commit/1412acf)), pull requests 4 and 8.
-- **Sushmita Patil (Oracle):** array oracle ([3e9e658](https://github.com/AdiJainS/Aggregates-A-Fenwick-Tree-Cannot-Support/commit/3e9e658)), seeded operation generator ([466834b](https://github.com/AdiJainS/Aggregates-A-Fenwick-Tree-Cannot-Support/commit/466834b)), gcd reference and differential testing ([e85a02a](https://github.com/AdiJainS/Aggregates-A-Fenwick-Tree-Cannot-Support/commit/e85a02a), [2133306](https://github.com/AdiJainS/Aggregates-A-Fenwick-Tree-Cannot-Support/commit/2133306)), million-operation D2 test ([95db6b8](https://github.com/AdiJainS/Aggregates-A-Fenwick-Tree-Cannot-Support/commit/95db6b8)), failure shrinking ([f7ded3e](https://github.com/AdiJainS/Aggregates-A-Fenwick-Tree-Cannot-Support/commit/f7ded3e)), D4 proof, pull request 6.
-- **Vanshika Agrawal (Adversary):** repeated-rebuild workload ([6f551e8](https://github.com/AdiJainS/Aggregates-A-Fenwick-Tree-Cannot-Support/commit/6f551e8)), difficult queries ([6005783](https://github.com/AdiJainS/Aggregates-A-Fenwick-Tree-Cannot-Support/commit/6005783)), repeated decreases ([4b820b9](https://github.com/AdiJainS/Aggregates-A-Fenwick-Tree-Cannot-Support/commit/4b820b9)), scale verification ([ff61b0b](https://github.com/AdiJainS/Aggregates-A-Fenwick-Tree-Cannot-Support/commit/ff61b0b)), D5 proof, pull request 2.
-- **Adi Jain (Analyst):** cost model draft ([f1ec232](https://github.com/AdiJainS/Aggregates-A-Fenwick-Tree-Cannot-Support/commit/f1ec232)), gcd and maximum benchmarks ([ec9b31f](https://github.com/AdiJainS/Aggregates-A-Fenwick-Tree-Cannot-Support/commit/ec9b31f), [60da2c5](https://github.com/AdiJainS/Aggregates-A-Fenwick-Tree-Cannot-Support/commit/60da2c5)), D5 scale benchmarks ([9819241](https://github.com/AdiJainS/Aggregates-A-Fenwick-Tree-Cannot-Support/commit/9819241)), decrease study ([9f259e7](https://github.com/AdiJainS/Aggregates-A-Fenwick-Tree-Cannot-Support/commit/9f259e7)), counters-off reruns ([a9cc82f](https://github.com/AdiJainS/Aggregates-A-Fenwick-Tree-Cannot-Support/commit/a9cc82f)), pull requests 1 and 7.
+- **Tia Mehra (Structure A):** generic iterative segment tree core ([451757b](https://github.com/AdiJainS/cs253-quorum-p05/commit/451757b)), maximum/count and gcd wrapper ([0ebb69f](https://github.com/AdiJainS/cs253-quorum-p05/commit/0ebb69f)), query, update, invariant and differential tests ([b72444b](https://github.com/AdiJainS/cs253-quorum-p05/commit/b72444b)), operation counters ([10d8e8e](https://github.com/AdiJainS/cs253-quorum-p05/commit/10d8e8e)), pull request [#5](https://github.com/AdiJainS/cs253-quorum-p05/pull/5).
+- **Vishruth Agrawal (Structure B):** Fenwick maximum build and query ([ec8e003](https://github.com/AdiJainS/cs253-quorum-p05/commit/ec8e003)), assign with decreases ([4bd8733](https://github.com/AdiJainS/cs253-quorum-p05/commit/4bd8733)), prefix-only baseline ([09e2867](https://github.com/AdiJainS/cs253-quorum-p05/commit/09e2867)), O(log n) assign with the slow version kept as a cross-check ([9b3aa9d](https://github.com/AdiJainS/cs253-quorum-p05/commit/9b3aa9d)), counters and their tests ([c06eb48](https://github.com/AdiJainS/cs253-quorum-p05/commit/c06eb48), [e925e6f](https://github.com/AdiJainS/cs253-quorum-p05/commit/e925e6f)), D2 derivation, pull request [#3](https://github.com/AdiJainS/cs253-quorum-p05/pull/3).
+- **Anushri Maheshwari (Architect):** sensor replay application and gcd segment tree ([380085c](https://github.com/AdiJainS/cs253-quorum-p05/commit/380085c), [06784fb](https://github.com/AdiJainS/cs253-quorum-p05/commit/06784fb)), seeded tests and invariant checks ([8bce4a7](https://github.com/AdiJainS/cs253-quorum-p05/commit/8bce4a7)), interface document and D3 proof ([1412acf](https://github.com/AdiJainS/cs253-quorum-p05/commit/1412acf)), pull requests [#4](https://github.com/AdiJainS/cs253-quorum-p05/pull/4) and [#8](https://github.com/AdiJainS/cs253-quorum-p05/pull/8).
+- **Sushmita Patil (Oracle):** array oracle ([3e9e658](https://github.com/AdiJainS/cs253-quorum-p05/commit/3e9e658)), seeded operation generator ([466834b](https://github.com/AdiJainS/cs253-quorum-p05/commit/466834b)), gcd reference and differential testing ([e85a02a](https://github.com/AdiJainS/cs253-quorum-p05/commit/e85a02a), [2133306](https://github.com/AdiJainS/cs253-quorum-p05/commit/2133306)), million-operation D2 test ([95db6b8](https://github.com/AdiJainS/cs253-quorum-p05/commit/95db6b8)), failure shrinking ([f7ded3e](https://github.com/AdiJainS/cs253-quorum-p05/commit/f7ded3e)), D4 proof, pull request [#6](https://github.com/AdiJainS/cs253-quorum-p05/pull/6).
+- **Vanshika Agrawal (Adversary):** repeated-rebuild workload ([6f551e8](https://github.com/AdiJainS/cs253-quorum-p05/commit/6f551e8)), difficult queries ([6005783](https://github.com/AdiJainS/cs253-quorum-p05/commit/6005783)), repeated decreases ([4b820b9](https://github.com/AdiJainS/cs253-quorum-p05/commit/4b820b9)), scale verification ([ff61b0b](https://github.com/AdiJainS/cs253-quorum-p05/commit/ff61b0b)), D5 proof, pull request [#2](https://github.com/AdiJainS/cs253-quorum-p05/pull/2).
+- **Adi Jain (Analyst):** cost model draft ([f1ec232](https://github.com/AdiJainS/cs253-quorum-p05/commit/f1ec232)), gcd and maximum benchmarks ([ec9b31f](https://github.com/AdiJainS/cs253-quorum-p05/commit/ec9b31f), [60da2c5](https://github.com/AdiJainS/cs253-quorum-p05/commit/60da2c5)), D5 scale benchmarks ([9819241](https://github.com/AdiJainS/cs253-quorum-p05/commit/9819241)), decrease study ([9f259e7](https://github.com/AdiJainS/cs253-quorum-p05/commit/9f259e7)), counters-off reruns ([a9cc82f](https://github.com/AdiJainS/cs253-quorum-p05/commit/a9cc82f)), pull requests [#1](https://github.com/AdiJainS/cs253-quorum-p05/pull/1) and [#7](https://github.com/AdiJainS/cs253-quorum-p05/pull/7).
 
 
 ## 2. Problem
@@ -120,9 +120,9 @@ The differential tests are run by `make test`:
 
 | Date | Module | Symptom | Found by | Fixing commit |
 | --- | --- | --- | --- | --- |
-| 2026-11-16 | Structure B (injected fault) | Omitted `ASSIGN 4 6` left index 4 at 8, so query `[3,4]` returned 8 instead of 6; the shrinker reduced 5 operations to 2. This fault was injected into the harness on purpose and is not a bug in the production code. | D4 differential shrinker | [f7ded3e](https://github.com/AdiJainS/Aggregates-A-Fenwick-Tree-Cannot-Support/commit/f7ded3e) (demonstration only); also in `docs/BUG_LOG.md` |
+| 2026-11-16 | Structure B (injected fault) | Omitted `ASSIGN 4 6` left index 4 at 8, so query `[3,4]` returned 8 instead of 6; the shrinker reduced 5 operations to 2. This fault was injected into the harness on purpose and is not a bug in the production code. | D4 differential shrinker | [f7ded3e](https://github.com/AdiJainS/cs253-quorum-p05/commit/f7ded3e) (demonstration only); also in `docs/BUG_LOG.md` |
 
-TODO (every owner): add to this table (and `docs/BUG_LOG.md`) real bugs only, from your own notes and the commit history. Examples to look for: the Structure B assign rewrite ([9b3aa9d](https://github.com/AdiJainS/Aggregates-A-Fenwick-Tree-Cannot-Support/commit/9b3aa9d)), the segment-tree debug-check fix ([37f797e](https://github.com/AdiJainS/Aggregates-A-Fenwick-Tree-Cannot-Support/commit/37f797e)), and any mismatch the oracle reported. Do not add entries that did not happen.
+The table lists defects the team has recorded. It currently holds only the harness-injected fault above; the `docs/BUG_LOG.md` file has the same entry. Entries are added only for defects that actually occurred.
 
 ## 8. Adversarial inputs
 
@@ -132,7 +132,7 @@ For the prefix baseline, consider $[5,3]$. Its full-prefix maximum is 5. After a
 
 ## 9. Predicted cost model
 
-The model was written before measuring. Its first commit is [f1ec232 "Draft cost model"](https://github.com/AdiJainS/Aggregates-A-Fenwick-Tree-Cannot-Support/commit/f1ec232) (10 November 2026); the first measurement files (`results/`) were committed on 16 November 2026. The final model is in `docs/derivations/D6_250001083.pdf`, with its notes in `docs/derivations/sources/D6-analyst-draft.md`.
+The model was written before measuring. Its first commit is [f1ec232 "Draft cost model"](https://github.com/AdiJainS/cs253-quorum-p05/commit/f1ec232) (10 November 2026); the first measurement files (`results/`) were committed on 16 November 2026. The final model is in `docs/derivations/D6_250001083.pdf`, with its notes in `docs/derivations/sources/D6-analyst-draft.md`.
 
 For the prefix baseline, if $Q$ queries, $U_+$ nondecreasing updates and $U_-$ decreases are replayed, rebuilding on each decrease gives
 
@@ -146,7 +146,7 @@ An array assignment is $O(1)$ while a scan takes $O(w)$ for range width $w$. A�
 
 The 20 November measurements use an Intel Core i9-13900HX, Windows 11, Zig 0.13.0 / Clang 18.1.6 and C++17 with <code>-O2</code>. Both structures have counters disabled in timing builds; counters are collected separately. The random workload uses one million values, one million operations and seed 253. Construction is measured separately from replay. Each timing is the mean and sample standard deviation of five runs. The machine was interactive, with no recorded thermal or background-load isolation.
 
-This report describes repository main at commit <code>67f55ee</code>, fetched on 21 November 2026. Benchmark results retain the source revisions recorded with each measurement; they should not be attributed automatically to later versions.
+This report describes the repository at the commit tagged `final`. Benchmark results retain the source revisions recorded with each measurement; they should not be attributed automatically to later versions.
 
 ## 11. Results
 
@@ -170,15 +170,15 @@ In D5’s million-operation workloads, difficult queries took 76.12 ± 1.01 ms f
 
 ![Figure 4. Replay time versus width, 10% updates.](docs/report-images/figure-04.png)
 
-*Figure 4: Replay time versus width, 10% updates.*
+*Figure 4: Replay time versus width, 10% updates. Script `bench/plot_width.py`, data `results/raw/timing-2026-11-20/max-summary.csv`. Both axes: time linear, width logarithmic; bars are one standard deviation of five runs.*
 
 ![Figure 5. Maximum replay time versus width, 50% updates.](docs/report-images/figure-05.png)
 
-*Figure 5: Maximum replay time versus width, 50% updates.*
+*Figure 5: Maximum replay time versus width, 50% updates. Script `bench/plot_width.py`, data `results/raw/timing-2026-11-20/max-summary.csv`. Width axis logarithmic; bars are one standard deviation of five runs.*
 
 ![Figure 6. Maximum replay time versus width, 90% updates.](docs/report-images/figure-06.png)
 
-*Figure 6: Maximum replay time versus width, 90% updates.*
+*Figure 6: Maximum replay time versus width, 90% updates. Script `bench/plot_width.py`, data `results/raw/timing-2026-11-20/max-summary.csv`. Width axis logarithmic; bars are one standard deviation of five runs.*
 
 ### 11.1 Varying the share of decreases
 
@@ -186,17 +186,21 @@ The full decrease sweep covers three widths, three update shares and three reque
 
 ![Figure 7. D5 adversarial workload replay timings; n = 1,048,576.](docs/report-images/figure-07.png)
 
-*Figure 7: D5 adversarial workload replay timings; $n=1{,}048{,}576$.*
+*Figure 7: D5 adversarial workload replay timings; $n=1{,}048{,}576$. Script `bench/plot_d5.py`, data `results/raw/timing-2026-11-20/d5-summary.csv`.*
 
 ![Figure 8. Full-scale decrease sweep, width 1024 and 50% updates.](docs/report-images/figure-08.png)
 
-*Figure 8: Full-scale decrease sweep, width 1024 and 50% updates.*
+*Figure 8: Full-scale decrease sweep, width 1024 and 50% updates. Script `bench/plot_decreases.py`, data `results/raw/timing-2026-11-20/decreases/summary.csv`. B's spread is large, so the three B points are not separable.*
 
 The prefix baseline was measured at $n=4096$ with 10,000 operations and 50% updates. With 0, 2,532 and 5,051 actual decreases, replay time was respectively 0.23, 14.12 and 27.84 ms. The rising trend is consistent with the rebuild term, but one fixed-size experiment does not prove an asymptotic bound.
 
 ![Figure 9. Prefix baseline replay versus decrease share.](docs/report-images/figure-09.png)
 
-*Figure 9: Prefix baseline replay versus decrease share.*
+*Figure 9: Prefix baseline replay versus decrease share. Script `bench/plot_decreases.py`, data `results/raw/timing-2026-11-20/decreases/prefix-summary.csv`. Time axis logarithmic.*
+
+![Figure 13. Prefix baseline: measured replay time against the model's linear shape.](results/figures/timing-2026-11-20/decreases/prefix-prediction.png)
+
+*Figure 13: Measured prefix-baseline replay time (mean of five runs, bars one standard deviation) against the model's shape a + b·U-, from the cost model's n·U- rebuild term. The constant a is the measurement with no decreases and b is set from the 100% point, so those two points fit by construction; the 50% point is the check: measured 14.13 ms against 14.07 ms predicted, a gap of 0.06 ms, about 1.4 times that point's standard deviation of 0.04 ms. The small remaining gap is not explained by the model; run-to-run noise and the small constant costs of queries are the likely sources, but this was not isolated. Script `bench/plot_prediction.py`, data `results/raw/timing-2026-11-20/decreases/prefix-summary.csv`. The model says nothing about the constant itself; it is a fixed-size check and does not prove the asymptotic bound.*
 
 ### 11.2 GCD benchmark
 
@@ -204,15 +208,15 @@ The GCD benchmark used the D1 GCD tree and D4 array reference, with one million 
 
 ![Figure 10. GCD replay versus width, 10% updates.](docs/report-images/figure-10.png)
 
-*Figure 10: GCD replay versus width, 10% updates.*
+*Figure 10: GCD replay versus width, 10% updates. Script `bench/plot_width.py`, data `results/raw/gcd-summary.csv`. Width axis logarithmic.*
 
 ![Figure 11. GCD replay versus width, 50% updates.](docs/report-images/figure-11.png)
 
-*Figure 11: GCD replay versus width, 50% updates.*
+*Figure 11: GCD replay versus width, 50% updates. Script `bench/plot_width.py`, data `results/raw/gcd-summary.csv`. Width axis logarithmic.*
 
 ![Figure 12. GCD replay versus width, 90% updates.](docs/report-images/figure-12.png)
 
-*Figure 12: GCD replay versus width, 90% updates.*
+*Figure 12: GCD replay versus width, 90% updates. Script `bench/plot_width.py`, data `results/raw/gcd-summary.csv`. Width axis logarithmic.*
 
 | Width | Updates | GCD tree (ms) | Array oracle (ms) |
 | ---: | ---: | ---: | ---: |
@@ -243,11 +247,12 @@ Separate Windows Performance Recorder traces were examined for the benchmark pro
 | 1 to 3 | drawn for the report | none |
 | 4 to 6 | `bench/plot_width.py` | `results/raw/timing-2026-11-20/max-summary.csv` |
 | 7 | `bench/plot_d5.py` | `results/raw/timing-2026-11-20/d5-summary.csv` |
-| 8 | TODO (Adi): script not recorded | `results/raw/timing-2026-11-20/decreases/summary.csv` |
+| 8 | `bench/plot_decreases.py` | `results/raw/timing-2026-11-20/decreases/summary.csv` |
 | 9 | `bench/plot_decreases.py` | `results/raw/timing-2026-11-20/decreases/prefix-summary.csv` |
 | 10 to 12 | `bench/plot_width.py` | `results/raw/gcd-summary.csv` |
+| 13 | `bench/plot_prediction.py` | `results/raw/timing-2026-11-20/decreases/prefix-summary.csv` |
 
-`scripts/run_all.sh` regenerates figures 4 to 7 and 9. TODO (Adi): add error bars to figure 8 and any figure that lacks them, as the guidelines require.
+`scripts/run_all.sh` regenerates figures 4 to 9 and 13 from the raw data. Every plotted point is the mean of five runs with its spread shown.
 
 ## 12. Limitations
 

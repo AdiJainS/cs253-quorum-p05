@@ -82,7 +82,7 @@ run ends with `ALL STRUCTURE A TESTS PASSED`; any failed compilation or test exi
 with a nonzero status.
 
 The D1 proof is [D1_250041039.pdf](docs/derivations/D1_250041039.pdf), with its
-[Markdown source](docs/derivations/D1-structureA-draft.md) alongside it.
+[Markdown source](docs/derivations/sources/D1-structureA-draft.md) alongside it.
 
 ## Evaluation interface (pending instructor specification)
 
@@ -120,7 +120,7 @@ cp build/d3-proof/main.pdf docs/derivations/D3_250041005.pdf
 
     ./scripts/run_all.sh
 
-This builds, runs the tests and the sample, and regenerates the figures in `results/figures/timing-2026-11-20/` from the CSVs in `results/raw/timing-2026-11-20/`. It takes about 20 seconds on a warm build. `FULL=1 ./scripts/run_all.sh` also reruns the full-scale experiments into `results/raw/rerun-<date>/`; that is much slower and its running time has not been measured. See `bench/README.md` for every benchmark argument.
+This builds, runs the tests and the sample, and regenerates figures 4 to 9 and 13 in `results/figures/timing-2026-11-20/` from the CSVs in `results/raw/timing-2026-11-20/`. It takes about 20 seconds on a warm build. `FULL=1 ./scripts/run_all.sh` also reruns the full-scale experiments into `results/raw/rerun-<date>/`; that is much slower and its running time has not been measured. See `bench/README.md` for every benchmark argument.
 
 ## Repository map
 
@@ -161,7 +161,6 @@ The prefix-only baseline (n = 4096, 10,000 operations, 50% updates) took 0.23, 1
 - The timing data was recorded on a Windows machine without background-load control. Some configurations have large spread. The cache profiling uses Windows tracing tools and is sampled, not exact miss counts.
 - Structure B's build scans its blocks and has an O(n log n) upper bound, whereas the paper describes a linear build.
 - Some figures in `results/figures/` come from earlier runs that used different counter settings; REPORT.md names which run each belongs to.
-- `docs/slides/slides.pdf` and `REPORT.pdf` are not in the repository yet.
 
 ## Tools and references
 
