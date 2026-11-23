@@ -1,0 +1,45 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><title>D5: Decreasing updates in a prefix-maximum Fenwick tree</title>
+<style>
+@page { size: A4; margin: 13mm 15mm; }
+body { font-family: "Times New Roman", serif; font-size: 11.5pt; line-height: 1.34; color: #000; }
+h1 { font-size: 15pt; margin: 0 0 2px 0; }
+h2 { font-size: 12pt; margin: 8px 0 2px 0; }
+p { margin: 3px 0; text-align: justify; }
+.meta { font-size: 9pt; margin-bottom: 4px; }
+code, pre { font-family: Menlo, monospace; font-size: 9.8pt; }
+pre { margin: 3px 0 3px 14px; }
+ul, ol { margin: 2px 0 2px 16px; padding: 0; }
+li { margin: 1px 0; }
+</style></head><body>
+
+<h1>D5: Decreasing updates in a prefix-maximum Fenwick tree</h1>
+<div class="meta">CS 253 / MA 253, Project 5. Author: Vanshika Agrawal, Roll No. 250001076, Adversary. Sources consulted: Fenwick (1994), the Project 5 document.</div>
+
+<h2>1. Statement</h2>
+<p><i>Statement (project document, D5):</i> A point decrease cannot be applied to a prefix-maximum Fenwick tree with the increase-only rule. Prove it, and construct a sequence that forces the prefix-only baseline into repeated rebuilds.</p>
+
+<h2>2. Definitions</h2>
+<p>Use one-based indexing internally and write lowbit(i) = i &amp; (−i). A prefix-maximum Fenwick tree stores T[i] = max{A[j] : i − lowbit(i) + 1 ≤ j ≤ i}. A prefix query combines the stored maxima of the disjoint blocks covering A[1..r]. For an assignment at position p, the <b>increase-only rule</b> visits p, p + lowbit(p), … and sets T[i] = max(T[i], newValue).</p>
+
+<h2>3. The rule is correct for increases</h2>
+<p>Let A[p] change from x to y with y ≥ x. Take an affected block and let M be the maximum of its other elements (M = −∞ if there are none). Its old maximum is max(M, x) and its new maximum must be max(M, y). Since y ≥ x, max(max(M, x), y) = max(M, y), so the rule gives the correct new value for every affected block. Unaffected blocks do not change, so the invariant for T is preserved.</p>
+
+<h2>4. The rule fails for decreases</h2>
+<p>Let A = [5, 3]. Then T[1] = 5 and T[2] = 5. Assign A[1] = 1, so the array is [1, 3] and the correct whole-array maximum is 3. The rule computes T[1] = max(5, 1) = 5 and T[2] = max(5, 1) = 5, and a prefix query ending at position 2 returns 5 instead of 3. <b>This counterexample proves the increase-only rule is not correct for arbitrary point decreases.</b></p>
+<p>The reason is that the rule never lowers a stored value although a block maximum can decrease. The old block maximum and the new value also do not determine the new block maximum: the arrays [5, 3] and [5, 2] have the same old maximum 5, but after assigning their first element 1 their maxima are 3 and 2. Repair needs more information or recomputation.</p>
+
+<h2>5. A sequence that forces repeated rebuilds</h2>
+<p>Use zero-based indices for the public interface. For n ≥ 1 let A[i] = n − i for 0 ≤ i &lt; n, so A = [n, n−1, …, 1]. For j = 0, 1, …, k−1 with 1 ≤ k ≤ n: (1) assign A[j] = 0, then (2) query the maximum over [0, n−1].</p>
+<p>Just before assignment j, positions below j hold 0, position j holds n − j, and positions above j hold strictly smaller positive values. So position j holds the unique global maximum, and after the assignment the correct maximum is n − j − 1 (0 after the last assignment when j = n − 1). Every assignment therefore changes the whole-array maximum, and every following query exposes a stale value under the increase-only rule.</p>
+
+<h2>6. Rebuild count and cost</h2>
+<p>The team's prefix baseline handles a strict decrease by assigning the new value and calling <code>rebuild()</code>. Every assignment above is a strict decrease (a positive value becomes 0), so k assignments cause exactly k rebuilds after construction. A rebuild makes two linear passes with constant work per step, so it costs Θ(n), and the total rebuild work is Θ(kn), which is Θ(n²) for k = n. The k queries add at most O(k log n) and construction adds Θ(n), so neither changes the Θ(kn) total for 1 ≤ k ≤ n. This is a bound for the rebuilding baseline; it does not say every Fenwick-based structure must rebuild on decreases, and the two-tree structure uses a different repair.</p>
+
+<h2>7. Where this is used</h2>
+<p>The sequence is built by <code>makeRebuildWorkload(n, k)</code> in <code>adversary/generators.hpp</code>. The baseline is <code>PrefixFenwickMax</code> in <code>src/structB/prefix_fenwick_max.hpp</code>, which also holds the deliberately increase-only method used to show the failure. <code>tests/adversary/test_adversary.cpp</code> compares the direct array maximum, the rebuilding baseline, the increase-only method and the two-tree Fenwick tree. For n = 4 and k = 4 the expected maxima are 3, 2, 1, 0; the rebuilding baseline returns them and records four rebuilds, the increase-only method returns 4 four times, and the two-tree structure is correct throughout. The same workload is measured in <code>bench/max_benchmark.cpp</code> (workload <code>rebuild</code>).</p>
+
+<h2>References</h2>
+<p>1. P. M. Fenwick, "A new data structure for cumulative frequency tables," Software: Practice and Experience 24(3), 1994, pp. 327–336. 2. CS 253 / MA 253 Lab Projects, Project 5, D5. 3. Team code: <code>src/structB/prefix_fenwick_max.hpp</code>, <code>adversary/generators.hpp</code>.</p>
+
+</body></html>
