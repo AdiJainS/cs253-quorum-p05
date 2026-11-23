@@ -6,7 +6,7 @@
 #include <random>
 #include <vector>
 
-#include "structure_a.hpp"
+#include "../../src/structA/structure_a.hpp"
 
 int ceilLog2(int x) {
     int result = 0;

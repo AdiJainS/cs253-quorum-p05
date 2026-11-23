@@ -1,7 +1,7 @@
 #include <iostream>
 #include <vector>
 
-#include "structure_a.hpp"
+#include "../../src/structA/structure_a.hpp"
 #include "../../oracle/oracle.hpp"
 
 bool checkAllRanges(const structA::StructureA& tree, const Oracle& oracle, int n) {

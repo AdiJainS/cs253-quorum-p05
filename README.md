@@ -56,8 +56,33 @@ This builds and runs every unit test, invariant checker and differential test, t
 What the differential tests run:
 
 - Structure B against the array oracle: 1,000,000 operations (`tests/test_scale_d2.cpp`, seed 42).
-- Structure A against the array oracle: 1,000,000 operations (`tests/structA/test_differential.cpp`, seed 20261116) and 100,000 operations (`tests/test_real_d1.cpp`, seed 42).
+- Structure A against the array oracle: 1,000,000 operations (`tests/structA/test_differential.cpp`, seed 20261116), plus the separate 100,000-operation integration test (`tests/test_real_d1.cpp`, seed 42).
 - The application, for each backend: 1,000,000 operations (`bin/app --backend=a --test` and `--backend=b-hybrid --test`, seed 253).
+
+### Structure A tests with counters on and off
+
+From the repository root, run:
+
+```sh
+python scripts/test_struct_a.py
+```
+
+This D1-only command needs Python 3 and a C++17 compiler on PATH; it was tested on
+Windows with Python 3.14.8 and GCC 14.2.0. It builds and runs the tests under
+`tests/structA/` with counters disabled and enabled, placing executables under
+`build/tests/structA/`. To select another compiler, use
+`python scripts/test_struct_a.py --cxx clang++`. Counter builds use
+`-DSTRUCTA_ENABLE_COUNTERS`; all builds use `-std=c++17 -O2 -Wall -Wextra -pedantic`.
+
+The differential test runs 1,000,000 operations with seed `20261116` in each mode.
+The invariant test checks 20,000 updates with seed `253`; the counter-bound test
+uses 1,000,000 elements and 20,000 operations with seed `12345`. Query, update,
+adversarial, checker-regression and noncommutative-order tests also run. A passing
+run ends with `ALL STRUCTURE A TESTS PASSED`; any failed compilation or test exits
+with a nonzero status.
+
+The D1 proof is [D1_250041039.pdf](docs/derivations/D1_250041039.pdf), with its
+[Markdown source](docs/derivations/D1-structureA-draft.md) alongside it.
 
 ## Evaluation interface (pending instructor specification)
 
