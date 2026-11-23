@@ -75,7 +75,14 @@ For an assignment, unaffected blocks retain their maxima. The update recomputes 
 
 *Figure 3: The same generated workload is replayed for A and B; manageable cases are checked against the oracle.*
 
-### 5.1 Why a prefix maximum is insufficient
+### 5.1 Design decisions and rejected alternatives
+
+- **Two arrays instead of one.** A single Fenwick array of blocks ending at each index only answers prefix queries. Adding the second array of blocks starting at each index lets a query walk in from both ends and cover any range.
+- **Recompute affected blocks instead of `max(stored, v)`.** The increase-only update is wrong after a decrease, because a block whose old maximum was the changed element keeps a value that is too large. We rebuild each affected block from the new value and the unchanged parts on either side of it.
+- **Two climbs before any write, instead of range queries per block.** `assignSlow` recomputes each affected block with two range queries, which costs O(log n) per block and O(log² n) per update. The fast `assign` records running maxima in two climbs and then writes every block once, giving O(log n). We kept `assignSlow` as a cross-check; `tests/structB/test_blocks.cpp` compares the two against a fresh build.
+- **No whole-array rebuild on a decrease.** The prefix-only baseline rebuilds in O(n) on every decrease. Structure B avoids this, which is the point of keeping both arrays.
+
+### 5.2 Why a prefix maximum is insufficient
 
 Prefix maxima cannot be subtracted to recover an arbitrary range maximum. For example, $[10,2]$ and $[10,7]$ have identical prefix maxima but different maxima at the second position. The prefix-only baseline supports prefix queries; in this implementation each decrease rebuilds the tree. Increasing a value visits logarithmically many blocks, but decreasing an old maximum can hide the replacement. Rebuilding makes two linear passes.
 
@@ -91,7 +98,7 @@ Where our implementation differs from the paper:
 - Updates: the paper's setting is mainly queries; our project requires point assignment including decreases. `assign` recomputes only the blocks that contain the changed index, using partial maxima of their unchanged parts, in O(log n) steps. The older `assignSlow` is kept as a cross-check (`tests/structB/test_blocks.cpp`).
 - Counters: the class counts query blocks, assignment steps, changed blocks and lowered blocks. These are an addition for the measurements.
 
-TODO (Vishruth, D2): add two or three sentences on exactly what the paper proves about queries, and check the build claim above against the paper before the final tag.
+The paper sketches the update as amortized O(log N) without a full proof. D2 (`docs/derivations/D2_250001078.pdf`) instead proves the query bound 2⌊log₂ w⌋+1 blocks and a direct worst-case bound of 4(⌊log₂ n⌋+1) steps for `assign`, so no amortised argument is needed.
 
 ## 7. Correctness
 
@@ -104,6 +111,7 @@ The differential tests are run by `make test`:
 | Test | Operations | Seed | Result |
 | --- | ---: | ---: | --- |
 | Structure B against the oracle (`tests/test_scale_d2.cpp`) | 1,000,000 | 42 | PASS, 0 mismatches |
+| Structure A against the oracle (`tests/structA/test_differential.cpp`) | 1,000,000 | 20261116 | PASS |
 | Structure A against the oracle (`tests/test_real_d1.cpp`) | 100,000 | 42 | PASS |
 | Application, both backends (`bin/app --backend=a --test`, `--backend=b-hybrid --test`) | 1,000,000 each | 253 | PASS |
 | Shrinker demonstration (`tests/test_shrink_real_d2.cpp`) | injected fault, 5 operations reduced to 2 | — | detected |
@@ -247,7 +255,7 @@ The benchmarked source revisions are documented with the raw CSVs and scripts in
 
 The brief asks for all approaches across width and update mix. The committed GCD oracle timings cover width one; wider GCD cases measure the tree only. The array scan model predicts width-dependent work, but the available timings do not establish that trend experimentally. Complete the missing oracle measurements where feasible, or explicitly retain this limitation in the submission.
 
-Other limitations: `bin/app` runs on the native structures (`--backend=a` or `--backend=b-hybrid`), but the hybrid takes count and gcd from A because B does not provide them; there is no `run_ops --structure A|B` evaluation binary; the Structure A differential test runs 100,000 operations instead of 10^6; `REPORT.pdf` and `docs/slides/slides.pdf` are not yet exported or committed. Next measurements: rerun everything on one machine with counters off for both structures, add the array oracle at wider ranges, and take cache measurements with the same code and settings.
+Other limitations: `bin/app` runs on the native structures (`--backend=a` or `--backend=b-hybrid`), but the hybrid takes count and gcd from A because B does not provide them; there is no `run_ops --structure A|B` evaluation binary; `REPORT.pdf` and `docs/slides/slides.pdf` are not yet exported or committed. Next measurements: rerun everything on one machine with counters off for both structures, add the array oracle at wider ranges, and take cache measurements with the same code and settings.
 
 ## 13. References
 
