@@ -120,7 +120,7 @@ cp build/d3-proof/main.pdf docs/derivations/D3_250041005.pdf
 
     ./scripts/run_all.sh
 
-This builds, runs the tests and the sample, and regenerates the figures in `results/figures/timing-2026-11-20/` from the CSVs in `results/raw/timing-2026-11-20/`. It takes about 20 seconds on a warm build. `FULL=1 ./scripts/run_all.sh` also reruns the full-scale experiments into `results/raw/rerun-<date>/`; that is much slower and its running time has not been measured. See `bench/README.md` for every benchmark argument.
+This builds, runs the tests and the sample, and regenerates figures 4 to 9 and 13 in `results/figures/timing-2026-11-20/` from the CSVs in `results/raw/timing-2026-11-20/`. It takes about 20 seconds on a warm build. `FULL=1 ./scripts/run_all.sh` also reruns the full-scale experiments into `results/raw/rerun-<date>/`; that is much slower and its running time has not been measured. See `bench/README.md` for every benchmark argument.
 
 ## Repository map
 
