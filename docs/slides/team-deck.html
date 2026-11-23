@@ -845,13 +845,13 @@ S[10]={enter(){
     setTimeout(()=>{res.innerHTML=inc?'<span class="ok">compare 12 up the path: O(log n)</span>':'<span class="bad">old max 10 is gone → rebuild 2n: O(n)</span>';},900);}
   drawSim();T.every(2400,()=>{ph++;drawSim();});
   const mb=document.getElementById('mBars');mb.innerHTML='';
-  const data=[['0% decreases','0 actual',0.22,0.009],['50% decreases','2,532 actual',14.82,0.109],['100% decreases','5,051 actual',29.14,0.473]];
+  const data=[['0% decreases','0 actual',0.23,0.005],['50% decreases','2,532 actual',14.12,0.039],['100% decreases','5,051 actual',27.84,0.070]];
   const W=(mb.clientWidth||420),bw=W/3;
   const bars=data.map((d,i)=>{const b=el('div',{style:`position:absolute;bottom:58px;left:${i*bw+14}px;width:${bw-28}px;height:2px;background:${['var(--leaf)','var(--sun)','var(--red)'][i]};border:3px solid var(--ink);border-radius:8px 8px 3px 3px;box-sizing:border-box;transition:height 1.1s cubic-bezier(.2,1.3,.4,1)`},mb);
     el('div',{class:'big',style:`position:absolute;bottom:${58}px;left:${i*bw}px;width:${bw}px;text-align:center;font-size:17px;transition:bottom 1.1s cubic-bezier(.2,1.3,.4,1)`,html:d[2]+' ± '+d[3]+' ms'},mb);
     el('div',{style:`position:absolute;bottom:0;left:${i*bw}px;width:${bw}px;text-align:center;font-size:14px;line-height:1.25`,html:'<b>'+d[0]+'</b><br><span class="note">'+d[1]+'</span>'},mb);return b;});
   const labs=[...mb.querySelectorAll('.big')];
-  function grow(on){bars.forEach((b,i)=>{const h=on?Math.max(6,data[i][2]/29.14*190):2;b.style.height=h+'px';labs[i].style.bottom=(58+h+6)+'px';});}
+  function grow(on){bars.forEach((b,i)=>{const h=on?Math.max(6,data[i][2]/27.84*190):2;b.style.height=h+'px';labs[i].style.bottom=(58+h+6)+'px';});}
   this._grow=grow;grow(false);
 },step(s){if(this._grow)setTimeout(()=>this._grow(s>=1),60);}};
 
