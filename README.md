@@ -82,7 +82,7 @@ run ends with `ALL STRUCTURE A TESTS PASSED`; any failed compilation or test exi
 with a nonzero status.
 
 The D1 proof is [D1_250041039.pdf](docs/derivations/D1_250041039.pdf), with its
-[Markdown source](docs/derivations/D1-structureA-draft.md) alongside it.
+[Markdown source](docs/derivations/sources/D1-structureA-draft.md) alongside it.
 
 ## Evaluation interface (pending instructor specification)
 
@@ -161,7 +161,6 @@ The prefix-only baseline (n = 4096, 10,000 operations, 50% updates) took 0.23, 1
 - The timing data was recorded on a Windows machine without background-load control. Some configurations have large spread. The cache profiling uses Windows tracing tools and is sampled, not exact miss counts.
 - Structure B's build scans its blocks and has an O(n log n) upper bound, whereas the paper describes a linear build.
 - Some figures in `results/figures/` come from earlier runs that used different counter settings; REPORT.md names which run each belongs to.
-- `docs/slides/slides.pdf` and `REPORT.pdf` are not in the repository yet.
 
 ## Tools and references
 
